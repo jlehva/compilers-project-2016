@@ -5,13 +5,14 @@ using Interpreter;
 namespace InterpreterTests
 {
 	[TestFixture ()]
-	public class Test
+	public class ScannerTest
 	{
 		[Test ()]
 		public void TestCase ()
 		{
-			Scanner scanner = new Scanner ();
-			Assert.NotNull (scanner);
+			string input = "var X : int := 4 + (6 * 2);\n" +
+				"print X;";
+			Scanner scanner = new Scanner (input);
 		}
 	}
 }

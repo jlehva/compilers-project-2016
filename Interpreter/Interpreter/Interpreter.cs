@@ -6,7 +6,7 @@ namespace Interpreter
 	{
 		public static void Main (string[] args)
 		{
-			Interpreter interpreter = new Interpreter ();
+			Parser parser = new Parser ();
 		}
 	}
 }

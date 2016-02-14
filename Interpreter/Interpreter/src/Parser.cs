@@ -8,7 +8,7 @@ namespace Interpreter
 
 		public Parser ()
 		{
-			this.scanner = new Scanner ();
+			this.scanner = new Scanner ("input");
 		}
 
 	}
