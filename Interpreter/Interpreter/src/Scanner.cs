@@ -1,23 +1,33 @@
 ﻿using System;
+using System.IO;
+using System.Text;
 
 namespace Interpreter
 {
 	public class Scanner
 	{
-		private string input;
 		private int row = 0;
 		private int column = 0;
+		private StreamReader charStream;
 
+		// used for tests
 		public Scanner(string input) {
-			this.input = input;
+			byte[] byteArray = Encoding.UTF8.GetBytes(input);
+			MemoryStream stream = new MemoryStream(byteArray);
+			StreamReader charStream = new StreamReader(stream);
+			this.charStream = charStream;
+		}
+
+		public Scanner(StreamReader charStream) {
+			this.charStream = charStream;
 		}
 
 		public Token getNextToken() {
 			return new Token();
 		}
 
-		private char getNextChar() {
-			return ' ';
+		public char getNextChar() {
+			return (char)charStream.Read();
 		}
 	}
 }

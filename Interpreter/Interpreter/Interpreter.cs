@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 namespace Interpreter
 {
@@ -6,7 +7,10 @@ namespace Interpreter
 	{
 		public static void Main (string[] args)
 		{
-			Parser parser = new Parser ();
+			var filePath = args[0];
+			StreamReader charStream = File.OpenText(filePath);
+			Parser parser = new Parser (new Scanner(charStream));
+			parser.parse ();
 		}
 	}
 }

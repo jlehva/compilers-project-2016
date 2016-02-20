@@ -6,11 +6,15 @@ namespace Interpreter
 	{
 		private Scanner scanner;
 
-		public Parser ()
+		public Parser (Scanner scanner)
 		{
-			this.scanner = new Scanner ("input");
+			this.scanner = scanner;
 		}
 
+		public void parse()
+		{
+			this.scanner.getNextToken ();
+		}
 	}
 }
 
