@@ -232,12 +232,22 @@ namespace InterpreterTests
 			string input = "var X : int := 4 + (6 * 2);\n" +
 				"print X;";
 			Scanner scanner = new Scanner (input);
-			char first = scanner.getNextChar ();
+			char first = (char)scanner.getNextChar ();
 			Assert.IsNotNull (first);
 			Assert.AreEqual (first, 'v');
 			for (int i = 1; i <= 30; i++) {
 				scanner.getNextChar ();
 			}
+		}
+
+		[Test ()]
+		public void TestEOS() {
+			string input = "";
+			Scanner scanner = new Scanner (input);
+			Token EOS = scanner.getNextToken ();
+			Assert.AreEqual (Token.Types.EOS, EOS.Type);
+			Assert.AreEqual (0, EOS.Column);
+			Assert.AreEqual (0, EOS.Row);
 		}
 	}
 }

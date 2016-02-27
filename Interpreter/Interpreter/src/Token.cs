@@ -12,7 +12,7 @@ namespace Interpreter
 
 		public enum Types { Addition, Subtraction, Multiplication, Division, Less, Equal, And, Not, Assign,
 			Var, For, End, In, Do, Read, Print, Int, String, Bool, Assert, Identifier, Colon, Semicolon,
-			IntLiteral, StringLiteral, LeftParenthesis, RightParenthesis, NONE}
+			IntLiteral, StringLiteral, LeftParenthesis, RightParenthesis, NONE, EOS}
 
 		public Token ()
 		{

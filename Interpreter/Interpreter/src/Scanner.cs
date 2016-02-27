@@ -26,12 +26,29 @@ namespace Interpreter
 		}
 
 		public Token getNextToken() {
-			var current = getNextChar ();
+			int current = getNextChar ();
 
-			// if whitespace == skip char
-			if (Char.IsWhiteSpace(current)) {
-				// skip
+			if (current == -1) {
+				return new Token (_currentRow, _currentColumn, "", Token.Types.EOS);
 			}
+
+			/**
+			 * Beginning of a new Token
+			 * - if whitespace or new line
+			 * 	- skip all of them, increase the column and line numbers
+			 * - if matches /
+			 * 	- peek
+			 * 		- if //, then skip the whole line
+			 * 		- if /* then skip until * / is found
+			 * - if matches single char token
+			 * 	- return the token
+			 * 	- if matched : then must Peek to see if it's :=
+			 * - if matches "
+			 * 	- string literal (scan String)
+			 * - if is number
+			 * 	- int literal (scan integer)
+			 * - 
+					**/
 
 			// if matches single char operator then just return it as a token
 
@@ -44,21 +61,33 @@ namespace Interpreter
 			return new Token(1, 2, "asd", _typeFinder.findTypeFor("asd"));
 		}
 
-		public char getNextChar() {
-			var current = _charStream.Read ();
+		public int getNextChar() {
+			System.Console.WriteLine ("Row: " + _currentRow + ", Column: " + _currentColumn);
+			int current = _charStream.Read ();
 
 			System.Console.WriteLine (current + " == " + (char)current);
 
-			if (Char.IsWhiteSpace ((char)current)) {
-				System.Console.WriteLine ("char was whitespace");
+			// EOS, do not increment the _currentColumn
+			if (current == -1) {
+				return current;
 			}
 
+			if (isWhitespace(current)) {
+				return getNextChar ();
+			}
+
+			_currentColumn++;
+
 			// increase column number
-			return (char)current;
+			return current;
 		}
 
 		private String scanString() {
 			return "";
+		}
+
+		private void skipWhitespaces() {
+
 		}
 			
 		private bool isWhitespace(int current) {
