@@ -6,8 +6,8 @@ namespace Interpreter
 {
 	public class Scanner
 	{
-		private int _row = 0;
-		private int _column = 0;
+		private int _currentRow = 0;
+		private int _currentColumn = 0;
 		private StreamReader _charStream;
 
 		// used for tests
@@ -62,14 +62,14 @@ namespace Interpreter
 		private bool isWhitespace(int current) {
 			// if char is 10 (\n), then increase the line number by 1
 			if (current == 10) {
-				_row++;
-				_column = 0;
+				_currentRow++;
+				_currentColumn = 0;
 				return true;
 			}
 				
 			// if "normal" whitespace
 			if (Char.IsWhiteSpace ((char)current)) {
-				_column++;
+				_currentColumn++;
 				return true;
 			}
 
