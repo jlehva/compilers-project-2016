@@ -1,5 +1,0 @@
-/Users/jykke/uni/workspace/compilers/Mini-pl-interpreter/Interpreter/Interpreter/obj/x86/Debug/.NETFramework,Version=v4.5.AssemblyAttribute.cs
-/Users/jykke/uni/workspace/compilers/Mini-pl-interpreter/Interpreter/Interpreter/bin/Debug/Interpreter.exe.mdb
-/Users/jykke/uni/workspace/compilers/Mini-pl-interpreter/Interpreter/Interpreter/bin/Debug/Interpreter.exe
-/Users/jykke/uni/workspace/compilers/Mini-pl-interpreter/Interpreter/Interpreter/obj/x86/Debug/Interpreter.exe
-/Users/jykke/uni/workspace/compilers/Mini-pl-interpreter/Interpreter/Interpreter/obj/x86/Debug/Interpreter.exe.mdb
