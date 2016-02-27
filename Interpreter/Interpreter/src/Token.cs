@@ -8,17 +8,22 @@ namespace Interpreter
 		private int _row;
 		private int _column;
 		private string _lexeme;
-		// Token type
+		private Enum _type;
+
+		public enum Types { Addition, Subtraction, Multiplication, Division, Less, Equal, And, Not, Assign,
+			Var, For, End, In, Do, Read, Print, Int, String, Bool, Assert, Identifier, Colon, Semicolon,
+			IntLiteral, StringLiteral, LeftParenthesis, RightParenthesis, NONE}
 
 		public Token ()
 		{
 		}
 
-		public Token(int row, int column, string lexeme)
+		public Token(int row, int column, string lexeme, Enum type)
 		{
 			_row = row;
 			_column = column;
 			_lexeme = lexeme;
+			_type = type;
 		}
 			
 		public int Column
@@ -37,6 +42,12 @@ namespace Interpreter
 		{
 			get { return _lexeme; }
 			set { _lexeme = value; }
+		}
+
+		public Enum Type
+		{
+			get { return _type; }
+			set { _type = value; }
 		}
 	}
 }

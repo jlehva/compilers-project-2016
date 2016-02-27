@@ -9,6 +9,7 @@ namespace Interpreter
 		private int _currentRow = 0;
 		private int _currentColumn = 0;
 		private StreamReader _charStream;
+		private TypeFinder _typeFinder;
 
 		// used for tests
 		public Scanner(string input) {
@@ -16,10 +17,12 @@ namespace Interpreter
 			MemoryStream stream = new MemoryStream(byteArray);
 			StreamReader charStream = new StreamReader(stream);
 			_charStream = charStream;
+			_typeFinder = new TypeFinder();
 		}
 
 		public Scanner(StreamReader charStream) {
 			_charStream = charStream;
+			_typeFinder = new TypeFinder();
 		}
 
 		public Token getNextToken() {
@@ -30,8 +33,6 @@ namespace Interpreter
 				// skip
 			}
 
-			// line break is char 10
-
 			// if matches single char operator then just return it as a token
 
 			// check if it's a String and return the String token
@@ -40,19 +41,20 @@ namespace Interpreter
 			}
 
 			// if stream ends, return EOS (end of source) token
-			return new Token();
+			return new Token(1, 2, "asd", _typeFinder.findTypeFor("asd"));
 		}
 
 		public char getNextChar() {
 			var current = _charStream.Read ();
 
-				System.Console.WriteLine (current + " == " + (char)current);
+			System.Console.WriteLine (current + " == " + (char)current);
 
 			if (Char.IsWhiteSpace ((char)current)) {
 				System.Console.WriteLine ("char was whitespace");
 			}
+
 			// increase column number
-				return (char)current;
+			return (char)current;
 		}
 
 		private String scanString() {
