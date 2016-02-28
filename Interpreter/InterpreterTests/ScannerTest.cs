@@ -247,7 +247,27 @@ namespace InterpreterTests
 			Token EOS = scanner.getNextToken ();
 			Assert.AreEqual (Token.Types.EOS, EOS.Type);
 			Assert.AreEqual (0, EOS.Column);
-			Assert.AreEqual (0, EOS.Row);
+			Assert.AreEqual (1, EOS.Row);
+		}
+
+		[Test ()]
+		public void TestSingleLineCommentsAreRemoved() {
+			string input = "//12345 \n";
+			Scanner scanner = new Scanner (input);
+			Token EOS = scanner.getNextToken ();
+			Assert.AreEqual (Token.Types.EOS, EOS.Type);
+			Assert.AreEqual (9, EOS.Column);
+			Assert.AreEqual (1, EOS.Row);
+		}
+
+		[Test ()]
+		public void TestMultiLineCommentsAreRemoved() {
+			string input = "/*12345\n\nasdf*/";
+			Scanner scanner = new Scanner (input);
+			Token EOS = scanner.getNextToken ();
+			Assert.AreEqual (Token.Types.EOS, EOS.Type);
+			Assert.AreEqual (6, EOS.Column);
+			Assert.AreEqual (3, EOS.Row);
 		}
 	}
 }
