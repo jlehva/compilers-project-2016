@@ -40,7 +40,6 @@ namespace Interpreter
 
 		private static Hashtable symbols = new Hashtable() {
 			{":", Token.Types.Colon},
-			// {"\"", Symbol.Quotation},
 			{";", Token.Types.Semicolon}
 		};
 

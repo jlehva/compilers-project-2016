@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using System.Collections;
 
 namespace Interpreter
 {
@@ -8,8 +9,46 @@ namespace Interpreter
 	{
 		private int _currentRow = 1;
 		private int _currentColumn = 0;
+		private int _currentTokenColumn = 0;
 		private StreamReader _charStream;
 		private TypeFinder _typeFinder;
+
+		private static Hashtable operators = new Hashtable {
+			{"+", Token.Types.Addition},
+			{"-", Token.Types.Subtraction}, 
+			{"*", Token.Types.Multiplication},
+			{"/", Token.Types.Division},
+			{"<", Token.Types.Less},
+			{"=", Token.Types.Equal},
+			{"&", Token.Types.And},
+			{"!", Token.Types.Not},
+			{":=", Token.Types.Assign}
+		};
+
+		private static Hashtable types = new Hashtable {
+			{"int", Token.Types.Int},
+			{"string", Token.Types.String},
+			{"bool", Token.Types.Bool}
+		};
+
+		private static Hashtable reserved_keywords = new Hashtable() {
+			{"var", Token.Types.Var}, 
+			{"for", Token.Types.For},
+			{"end", Token.Types.End},
+			{"in", Token.Types.In},
+			{"do", Token.Types.Do},
+			{"read", Token.Types.Read}, 
+			{"print", Token.Types.Print},
+			{"int", Token.Types.Int},
+			{"string", Token.Types.String},
+			{"bool", Token.Types.Bool},
+			{"assert", Token.Types.Assert}
+		};
+
+		private static Hashtable symbols = new Hashtable() {
+			{":", Token.Types.Colon},
+			{";", Token.Types.Semicolon}
+		};
 
 		// used for tests
 		public Scanner(string input) {
@@ -27,40 +66,57 @@ namespace Interpreter
 
 		public Token getNextToken() {
 			int currentChar = getNextChar ();
+			string currentChString = "" + (char)currentChar;
 
-			if (currentChar == -1) {
-				return new Token (_currentRow, _currentColumn, "", Token.Types.EOS);
+			if (isEndOfSource(currentChar)) {
+				return new Token (_currentRow, _currentTokenColumn, "", Token.Types.EOS);
 			}
-				
+
+			if (operators.ContainsKey(currentChString)) {
+				return new Token (_currentRow, _currentTokenColumn, currentChString, (Token.Types)operators[currentChString]);
+			}
+
+			if (symbols.ContainsKey(currentChString)) {
+				// check for assign operator
+				if (currentChar == ':' && (char)peekNextChar() == '=') {
+					char nextChar = (char)readNextChar ();
+					string lexeme = "" + (char)currentChar + nextChar;
+					return new Token (_currentRow, _currentTokenColumn, lexeme, Token.Types.Assign);
+				}
+					
+				return new Token (_currentRow, _currentTokenColumn, currentChString, (Token.Types)symbols[currentChString]);
+			}
 
 			/**
 			 * Beginning of a new Token
 			 * - if whitespace or new line (DONE)
 			 * 	- skip all of them, increase the column and line numbers (DONE)
 			 * - if stream ends, return EOS (end of source) token (DONE)
-			 * - if matches /
-			 * 	- peek
-			 * 		- if //, then skip the whole line
-			 * 		- if /* then skip until * / is found
+			 * - if matches / (DONE)
+			 * 	- peek (DONE)
+			 * 		- if //, then skip the whole line (DONE)
+			 * 		- if /* then skip until * / is found (DONE)
 			 * - if matches single char token
 			 * 	- return the token
 			 * 	- if matched : then must Peek to see if it's :=
 			 * - if matches "
 			 * 	- string literal (scan String)
-			 * - if is number
-			 * 	- int literal (scan integer)
-			 * - 
+			 * - if digit
+			 * - if letter
+			 * 	- keyword
+			 * 	- identifier 
 					**/
 
 			return new Token(1, 2, "asd", _typeFinder.findTypeFor("asd"));
 		}
 
 		public int getNextChar() {
-			System.Console.WriteLine ("Row: " + _currentRow + ", Column: " + _currentColumn);
-			int currentChar = _charStream.Read ();
+			// System.Console.WriteLine ("Row: " + _currentRow + ", Column: " + _currentColumn);
+			_currentTokenColumn = _currentColumn;
+			int currentChar = readNextChar ();
 			int nextChar = peekNextChar ();
 
-			System.Console.WriteLine (currentChar + " == " + (char)currentChar);
+			// System.Console.WriteLine (currentChar + " == " + (char)currentChar);
 
 			// EOS, do not increment the _currentColumn
 			if (isEndOfSource(currentChar)) {
@@ -72,15 +128,13 @@ namespace Interpreter
 				return getNextChar ();
 			}
 
-			_currentColumn++;
+			// _currentColumn++;
 
 			if (isComment (currentChar, nextChar)) {
-				System.Console.WriteLine ("COMMENT FOUND!");
 				skipComment ();
 				return getNextChar ();
 			}
-
-			// increase column number
+				
 			return currentChar;
 		}
 

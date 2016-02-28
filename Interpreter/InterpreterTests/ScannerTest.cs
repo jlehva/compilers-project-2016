@@ -269,6 +269,39 @@ namespace InterpreterTests
 			Assert.AreEqual (6, EOS.Column);
 			Assert.AreEqual (3, EOS.Row);
 		}
+
+		[Test ()]
+		public void TestAssignToken() {
+			string input = ":=";
+			Scanner scanner = new Scanner (input);
+			Token assignToken = scanner.getNextToken ();
+			Assert.AreEqual (Token.Types.Assign, assignToken.Type);
+			Assert.AreEqual (0, assignToken.Column);
+			Assert.AreEqual (1, assignToken.Row);
+			Assert.AreEqual (":=", assignToken.Lexeme);
+		}
+
+		[Test ()]
+		public void TestEqualToken() {
+			string input = "=";
+			Scanner scanner = new Scanner (input);
+			Token token = scanner.getNextToken ();
+			Assert.AreEqual (Token.Types.Equal, token.Type);
+			Assert.AreEqual (0, token.Column);
+			Assert.AreEqual (1, token.Row);
+			Assert.AreEqual ("=", token.Lexeme);
+		}
+
+		[Test ()]
+		public void TestColonToken() {
+			string input = ":";
+			Scanner scanner = new Scanner (input);
+			Token token = scanner.getNextToken ();
+			Assert.AreEqual (Token.Types.Colon, token.Type);
+			Assert.AreEqual (0, token.Column);
+			Assert.AreEqual (1, token.Row);
+			Assert.AreEqual (":", token.Lexeme);
+		}
 	}
 }
 
