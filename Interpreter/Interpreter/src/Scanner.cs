@@ -86,6 +86,10 @@ namespace Interpreter
 				return new Token (_currentRow, _currentTokenColumn, currentChString, (Token.Types)symbols[currentChString]);
 			}
 
+			if (Char.IsDigit((char)currentChar)) {
+				System.Console.WriteLine("WAS A DIGIT ");
+			}
+
 			/**
 			 * Beginning of a new Token
 			 * - if whitespace or new line (DONE)
@@ -95,9 +99,9 @@ namespace Interpreter
 			 * 	- peek (DONE)
 			 * 		- if //, then skip the whole line (DONE)
 			 * 		- if /* then skip until * / is found (DONE)
-			 * - if matches single char token
-			 * 	- return the token
-			 * 	- if matched : then must Peek to see if it's :=
+			 * - if matches single char token (DONE)
+			 * 	- return the token (DONE)
+			 * 	- if matched : then must Peek to see if it's := (DONE)
 			 * - if matches "
 			 * 	- string literal (scan String)
 			 * - if digit
@@ -127,8 +131,7 @@ namespace Interpreter
 				return getNextChar ();
 			}
 
-			// _currentColumn++;
-
+			// skip comments
 			if (isComment (currentChar, nextChar)) {
 				skipComment ();
 				return getNextChar ();

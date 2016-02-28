@@ -331,6 +331,33 @@ namespace InterpreterTests
 			Assert.AreEqual (2, token.Row);
 			Assert.AreEqual (":=", token.Lexeme);
 		}
+
+		[Test ()]
+		public void TestDigitTokens() {
+			string input = "123 0 -10\n10";
+			Scanner scanner = new Scanner (input);
+			Token token = scanner.getNextToken ();
+			Assert.AreEqual (Token.Types.IntLiteral, token.Type);
+			Assert.AreEqual ("123", token.Lexeme);
+			Assert.AreEqual (0, token.Column);
+			Assert.AreEqual (1, token.Row);
+
+			token = scanner.getNextToken ();
+			Assert.AreEqual (Token.Types.IntLiteral, token.Type);
+			Assert.AreEqual ("0", token.Lexeme);
+			Assert.AreEqual (4, token.Column);
+			Assert.AreEqual (1, token.Row);
+
+			token = scanner.getNextToken ();
+			Assert.AreEqual (Token.Types.IntLiteral, token.Type);
+			Assert.AreEqual ("-10", token.Lexeme);
+			Assert.AreEqual (6, token.Column);
+			Assert.AreEqual (1, token.Row);
+
+			token = scanner.getNextToken ();
+			Assert.AreEqual (Token.Types.IntLiteral, token.Type);
+			Assert.AreEqual ("10", token.Lexeme);
+		}
 	}
 }
 
