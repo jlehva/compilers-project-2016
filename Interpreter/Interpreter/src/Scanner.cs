@@ -11,7 +11,6 @@ namespace Interpreter
 		private int _currentColumn = 0;
 		private int _currentTokenColumn = 0;
 		private StreamReader _charStream;
-		private TypeFinder _typeFinder;
 
 		private static Hashtable operators = new Hashtable {
 			{"+", Token.Types.Addition},
@@ -47,7 +46,9 @@ namespace Interpreter
 
 		private static Hashtable symbols = new Hashtable() {
 			{":", Token.Types.Colon},
-			{";", Token.Types.Semicolon}
+			{";", Token.Types.Semicolon},
+			{"(", Token.Types.LeftParenthesis},
+			{")", Token.Types.RightParenthesis}
 		};
 
 		// used for tests
@@ -56,12 +57,10 @@ namespace Interpreter
 			MemoryStream stream = new MemoryStream(byteArray);
 			StreamReader charStream = new StreamReader(stream);
 			_charStream = charStream;
-			_typeFinder = new TypeFinder();
 		}
 
 		public Scanner(StreamReader charStream) {
 			_charStream = charStream;
-			_typeFinder = new TypeFinder();
 		}
 
 		public Token getNextToken() {
@@ -107,7 +106,7 @@ namespace Interpreter
 			 * 	- identifier 
 					**/
 
-			return new Token(1, 2, "asd", _typeFinder.findTypeFor("asd"));
+					return new Token(1, 2, "asd", Token.Types.Addition);
 		}
 
 		public int getNextChar() {

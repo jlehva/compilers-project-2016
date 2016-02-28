@@ -38,7 +38,6 @@
     <Compile Include="src\Scanner.cs" />
     <Compile Include="Interpreter.cs" />
     <Compile Include="src\Token.cs" />
-    <Compile Include="src\TypeFinder.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

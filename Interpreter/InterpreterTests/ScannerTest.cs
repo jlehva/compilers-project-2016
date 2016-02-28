@@ -302,6 +302,35 @@ namespace InterpreterTests
 			Assert.AreEqual (1, token.Row);
 			Assert.AreEqual (":", token.Lexeme);
 		}
+
+		[Test ()]
+		public void TestRandomTokens() {
+			string input = ":() \n:=";
+			Scanner scanner = new Scanner (input);
+			Token token = scanner.getNextToken ();
+			Assert.AreEqual (Token.Types.Colon, token.Type);
+			Assert.AreEqual (0, token.Column);
+			Assert.AreEqual (1, token.Row);
+			Assert.AreEqual (":", token.Lexeme);
+
+			token = scanner.getNextToken ();
+			Assert.AreEqual (Token.Types.LeftParenthesis, token.Type);
+			Assert.AreEqual (1, token.Column);
+			Assert.AreEqual (1, token.Row);
+			Assert.AreEqual ("(", token.Lexeme);
+
+			token = scanner.getNextToken ();
+			Assert.AreEqual (Token.Types.RightParenthesis, token.Type);
+			Assert.AreEqual (2, token.Column);
+			Assert.AreEqual (1, token.Row);
+			Assert.AreEqual (")", token.Lexeme);
+
+			token = scanner.getNextToken ();
+			Assert.AreEqual (Token.Types.Assign, token.Type);
+			Assert.AreEqual (0, token.Column);
+			Assert.AreEqual (2, token.Row);
+			Assert.AreEqual (":=", token.Lexeme);
+		}
 	}
 }
 
