@@ -358,6 +358,74 @@ namespace InterpreterTests
 			Assert.AreEqual (Token.Types.IntLiteral, token.Type);
 			Assert.AreEqual ("10", token.Lexeme);
 		}
+
+		[Test ()]
+		public void TestDigitAndMinusOperatorTokens() {
+			string input = "1-1";
+			Scanner scanner = new Scanner (input);
+			Token token = scanner.getNextToken ();
+			Assert.AreEqual (Token.Types.IntLiteral, token.Type);
+			token = scanner.getNextToken ();
+			Assert.AreEqual (Token.Types.IntLiteral, token.Type);
+
+			input = "1 - 1";
+			scanner = new Scanner (input);
+			token = scanner.getNextToken ();
+			Assert.AreEqual (Token.Types.IntLiteral, token.Type);
+			token = scanner.getNextToken ();
+			Assert.AreEqual (Token.Types.Subtraction, token.Type);
+			token = scanner.getNextToken ();
+			Assert.AreEqual (Token.Types.IntLiteral, token.Type);
+		}
+
+		[Test ()]
+		public void TestNestedCommentsAreRemoved() {
+			string input = "/*12345 \n /* asd asdf if else */ test */=";
+			Scanner scanner = new Scanner (input);
+			Token token = scanner.getNextToken ();
+			Assert.AreEqual (Token.Types.Equal, token.Type);
+			Assert.AreEqual (31, token.Column);
+			Assert.AreEqual (2, token.Row);
+			Assert.AreEqual ("=", token.Lexeme);
+		}
+
+		[Test ()]
+		public void TestTokenBeforeAndAfterMultilineComment() {
+			string input = ": /*12*/ =";
+			Scanner scanner = new Scanner (input);
+			Token token = scanner.getNextToken ();
+			Assert.AreEqual (Token.Types.Colon, token.Type);
+			Assert.AreEqual (0, token.Column);
+			Assert.AreEqual (1, token.Row);
+			token = scanner.getNextToken ();
+			Assert.AreEqual (Token.Types.Equal, token.Type);
+			Assert.AreEqual (9, token.Column);
+			Assert.AreEqual (1, token.Row);
+		}
+
+		[Test ()]
+		public void TestReturnsEOSifMultilineCommentsAreNotClosed() {
+			string input = "/*12\n/* asd as/*df if else */ test */\n";
+			Scanner scanner = new Scanner (input);
+			Token token = scanner.getNextToken ();
+			Assert.AreEqual (Token.Types.EOS, token.Type);
+			Assert.AreEqual (3, token.Row);
+			Assert.AreEqual (0, token.Column);
+
+			input = "/*23/*67/*";
+			scanner = new Scanner (input);
+			token = scanner.getNextToken ();
+			Assert.AreEqual (Token.Types.EOS, token.Type);
+			Assert.AreEqual (10, token.Column);
+			Assert.AreEqual (1, token.Row);
+
+			input = "/*23/*67/*\n123";
+			scanner = new Scanner (input);
+			token = scanner.getNextToken ();
+			Assert.AreEqual (Token.Types.EOS, token.Type);
+			Assert.AreEqual (3, token.Column);
+			Assert.AreEqual (2, token.Row);
+		}
 	}
 }
 

@@ -53,6 +53,7 @@ namespace Interpreter
 
 		// used for tests
 		public Scanner(string input) {
+			System.Console.WriteLine (input);
 			byte[] byteArray = Encoding.UTF8.GetBytes(input);
 			MemoryStream stream = new MemoryStream(byteArray);
 			StreamReader charStream = new StreamReader(stream);
@@ -71,23 +72,23 @@ namespace Interpreter
 				return new Token (_currentRow, _currentTokenColumn, "", Token.Types.EOS);
 			}
 
+			if (isInteger(currentChar)) {
+				return createIntLiteralToken (currentChar);
+			}
+
 			if (operators.ContainsKey(currentChString)) {
-				return new Token (_currentRow, _currentTokenColumn, currentChString, (Token.Types)operators[currentChString]);
+				return createOperatorToken (currentChString);
 			}
 
 			if (symbols.ContainsKey(currentChString)) {
 				// check for assign operator
 				if (currentChar == ':' && (char)peekNextChar() == '=') {
-					char nextChar = (char)readNextChar ();
-					string lexeme = "" + (char)currentChar + nextChar;
+					readNextChar (); // consume the "="
+					string lexeme = ":=";
 					return new Token (_currentRow, _currentTokenColumn, lexeme, Token.Types.Assign);
 				}
-					
-				return new Token (_currentRow, _currentTokenColumn, currentChString, (Token.Types)symbols[currentChString]);
-			}
 
-			if (Char.IsDigit((char)currentChar)) {
-				System.Console.WriteLine("WAS A DIGIT ");
+				return new Token (_currentRow, _currentTokenColumn, currentChString, (Token.Types)symbols[currentChString]);
 			}
 
 			/**
@@ -109,17 +110,13 @@ namespace Interpreter
 			 * 	- keyword
 			 * 	- identifier 
 					**/
-
 					return new Token(1, 2, "asd", Token.Types.Addition);
 		}
 
 		public int getNextChar() {
-			// System.Console.WriteLine ("Row: " + _currentRow + ", Column: " + _currentColumn);
 			_currentTokenColumn = _currentColumn;
 			int currentChar = readNextChar ();
 			int nextChar = peekNextChar ();
-
-			// System.Console.WriteLine (currentChar + " == " + (char)currentChar);
 
 			// EOS, do not increment the _currentColumn
 			if (isEndOfSource(currentChar)) {
@@ -144,8 +141,42 @@ namespace Interpreter
 			return "";
 		}
 
+		private Token createIntLiteralToken(int currentChar) {
+			String lexeme = "" + (char)currentChar;
+			while (isDigit(peekNextChar())) {
+				lexeme += (char)readNextChar ();
+			}
+			return new Token (_currentRow, _currentTokenColumn, lexeme, Token.Types.IntLiteral);
+		}
+
+		private bool isInteger(int currentChar) {
+			if (isDigit (currentChar)) {
+				return true;
+			} else if((char)currentChar == '-' && isDigit(peekNextChar())) {
+				return true;
+			}
+
+			return false;
+		}
+
+		private bool isDigit(int currentChar) {
+			return Char.IsDigit ((char)currentChar);
+		}
+
+		private Token createOperatorToken(String currentChString) {
+			return new Token (_currentRow, _currentTokenColumn, currentChString, (Token.Types)operators[currentChString]);
+		}
+
 		private bool isComment(int currentChar, int nextChar) {
-			if ((char)currentChar == '/' && ((char)nextChar == '*' || (char)nextChar == '/')) {
+			if (isMultilineComment(currentChar, nextChar) || (char)nextChar == '/') {
+				return true;
+			}
+
+			return false;
+		}
+
+		private bool isMultilineComment(int currentChar, int nextChar) {
+			if ((char)currentChar == '/' && (char)nextChar == '*') {
 				return true;
 			}
 
@@ -155,24 +186,32 @@ namespace Interpreter
 		private void skipComment() {
 			// consume the next / or * from the comment starting symbol
 			var currentChar = readNextChar();
-
 			// consume characters until end of line is found
 			if ((char)currentChar == '/') {
 				while (true) {
 					currentChar = readNextChar ();
-
 					if (isEndOfLine(currentChar) || isEndOfSource(peekNextChar())) {
 						break;
 					}
 				}
 			} else {
+				int multilineNestingLevel = 0;
 				while (true) {
 					currentChar = readNextChar ();
-
-					if (currentChar == '*' && (char)peekNextChar() == '/') {
-						// consume the '/' and return
+					// test if there's another /* and count them and then try to find as many */
+					// == nested multiline comment == /* asd /* nested comment */ asd */
+					if (isMultilineComment(currentChar, peekNextChar())) {
+						multilineNestingLevel++;
+						// consume the "*" from "/*"
 						readNextChar ();
-						break;
+					} else if (currentChar == '*' && (char)peekNextChar() == '/') {
+						// consume the '/'
+						readNextChar ();
+						if (multilineNestingLevel == 0) { // return only if nesting level is 0
+							break;
+						} else {
+							multilineNestingLevel--;
+						}
 					} else if (isEndOfSource(currentChar)) {
 						break;
 					} else if (isEndOfLine(currentChar)) {
@@ -191,7 +230,7 @@ namespace Interpreter
 				
 			// if "normal" whitespace
 			if (Char.IsWhiteSpace ((char)currentChar)) {
-				_currentColumn++;
+				// _currentColumn++;
 				return true;
 			}
 
@@ -208,7 +247,6 @@ namespace Interpreter
 
 		private bool isEndOfSource(int currentChar) {
 			if (currentChar == -1) {
-				System.Console.WriteLine ("END OF SOURCE");
 				return true;
 			}
 
@@ -221,7 +259,9 @@ namespace Interpreter
 
 		private int readNextChar() {
 			int currentChar = _charStream.Read ();
-			_currentColumn++;
+			if (!isEndOfSource(currentChar)) {
+				_currentColumn++;
+			}
 			return currentChar;
 		}
 
