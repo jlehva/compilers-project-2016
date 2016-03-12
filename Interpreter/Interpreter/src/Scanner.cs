@@ -51,6 +51,8 @@ namespace Interpreter
 			{")", Token.Types.RightParenthesis}
 		};
 
+		private static ArrayList escapeSequences = new ArrayList{"asd"};
+
 		// used for tests
 		public Scanner(string input) {
 			System.Console.WriteLine (input);
@@ -69,27 +71,25 @@ namespace Interpreter
 			string currentChString = "" + (char)currentChar;
 
 			if (isEndOfSource(currentChar)) {
-				return new Token (_currentRow, _currentTokenColumn, "", Token.Types.EOS);
+				return createEOSToken ();
 			}
 
-			if (isInteger(currentChar)) {
+			if (isIntegerLiteral(currentChar)) {
 				return createIntLiteralToken (currentChar);
 			}
 
-			if (operators.ContainsKey(currentChString)) {
-				return createOperatorToken (currentChString);
+			if (isOperator(currentChar)) {
+				return createOperatorToken (currentChar);
 			}
 
-			if (symbols.ContainsKey(currentChString)) {
-				// check for assign operator
-				if (currentChar == ':' && (char)peekNextChar() == '=') {
-					readNextChar (); // consume the "="
-					string lexeme = ":=";
-					return new Token (_currentRow, _currentTokenColumn, lexeme, Token.Types.Assign);
-				}
-
-				return new Token (_currentRow, _currentTokenColumn, currentChString, (Token.Types)symbols[currentChString]);
+			if (isSymbol(currentChar)) {
+				return createSymbolToken (currentChar);
 			}
+
+			if (isStringLiteral(currentChar)) {
+				return createStringLiteralToken ();
+			}
+
 
 			/**
 			 * Beginning of a new Token
@@ -105,10 +105,10 @@ namespace Interpreter
 			 * 	- if matched : then must Peek to see if it's := (DONE)
 			 * - if matches "
 			 * 	- string literal (scan String)
-			 * - if digit
+				* - if digit (DONE)
 			 * - if letter
 			 * 	- keyword
-			 * 	- identifier 
+			 * 	- identifier
 					**/
 					return new Token(1, 2, "asd", Token.Types.Addition);
 		}
@@ -137,8 +137,36 @@ namespace Interpreter
 			return currentChar;
 		}
 
-		private String scanString() {
-			return "";
+		private Token createStringLiteralToken() {
+			// consume the first "-character
+			int currentChar = readNextChar();
+			string lexeme = "";
+			System.Console.WriteLine ("String literal: " + currentChar + " == " + (char)currentChar);
+
+			while(true) {
+				if (isEndOfSource (currentChar)) {
+					return new Token (_currentRow, _currentTokenColumn, lexeme, Token.Types.ERROR);
+				} 
+
+				if ((char)currentChar == '\\') {
+					if (isEndOfSource (peekNextChar ())) {
+						return new Token (_currentRow, _currentTokenColumn, lexeme, Token.Types.ERROR);
+					} 
+					currentChar = readNextChar ();
+					lexeme += "\\" + (char)currentChar;
+					continue;
+				} else {
+					currentChar = readNextChar ();
+				}
+
+				if ((char)currentChar == '"') {
+					break;
+				} else {
+					lexeme += (char)currentChar;
+				}
+			}
+
+			return new Token(_currentRow, _currentTokenColumn, lexeme, Token.Types.StringLiteral);
 		}
 
 		private Token createIntLiteralToken(int currentChar) {
@@ -149,7 +177,7 @@ namespace Interpreter
 			return new Token (_currentRow, _currentTokenColumn, lexeme, Token.Types.IntLiteral);
 		}
 
-		private bool isInteger(int currentChar) {
+		private bool isIntegerLiteral(int currentChar) {
 			if (isDigit (currentChar)) {
 				return true;
 			} else if((char)currentChar == '-' && isDigit(peekNextChar())) {
@@ -159,12 +187,43 @@ namespace Interpreter
 			return false;
 		}
 
+		private bool isStringLiteral(int currentChar) {
+			return currentChar == 34;
+		}
+
+		private bool isOperator(int currentChar) {
+			string currentChString = "" + (char)currentChar;
+			return operators.ContainsKey (currentChString);
+		}
+
+		private bool isSymbol(int currentChar) {
+			string currentChString = "" + (char)currentChar;
+			return symbols.ContainsKey (currentChString);
+		}
+
 		private bool isDigit(int currentChar) {
 			return Char.IsDigit ((char)currentChar);
 		}
 
-		private Token createOperatorToken(String currentChString) {
+		private Token createOperatorToken(int currentChar) {
+			string currentChString = "" + (char)currentChar;
 			return new Token (_currentRow, _currentTokenColumn, currentChString, (Token.Types)operators[currentChString]);
+		}
+
+		private Token createSymbolToken(int currentChar) {
+			// check for assign operator
+			if ((char)currentChar == ':' && (char)peekNextChar() == '=') {
+				readNextChar (); // consume the "="
+				string lexeme = ":=";
+				return new Token (_currentRow, _currentTokenColumn, lexeme, Token.Types.Assign);
+			}
+
+			string currentChString = "" + (char)currentChar;
+			return new Token (_currentRow, _currentTokenColumn, currentChString, (Token.Types)symbols[currentChString]);
+		}
+
+		private Token createEOSToken() {
+			return new Token (_currentRow, _currentTokenColumn, "", Token.Types.EOS);
 		}
 
 		private bool isComment(int currentChar, int nextChar) {

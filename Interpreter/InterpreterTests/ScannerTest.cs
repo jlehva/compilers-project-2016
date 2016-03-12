@@ -426,6 +426,40 @@ namespace InterpreterTests
 			Assert.AreEqual (3, token.Column);
 			Assert.AreEqual (2, token.Row);
 		}
+
+		[Test ()]
+		public void TestStringLiteralCreation() {
+			string input = "\"foo\"=\"bar\"";
+			Scanner scanner = new Scanner (input);
+			Token token = scanner.getNextToken ();
+			Assert.AreEqual (Token.Types.StringLiteral, token.Type);
+			Assert.AreEqual (1, token.Row);
+			Assert.AreEqual (0, token.Column);
+
+			token = scanner.getNextToken ();
+			Assert.AreEqual (Token.Types.Equal, token.Type);
+			Assert.AreEqual (1, token.Row);
+			Assert.AreEqual (5, token.Column);
+
+			token = scanner.getNextToken ();
+			Assert.AreEqual (Token.Types.StringLiteral, token.Type);
+			Assert.AreEqual (1, token.Row);
+			Assert.AreEqual (6, token.Column);
+		}
+
+		[Test ()]
+		public void TestStringLiteralCreationWithNoEnd() {
+			string input = "\"foo=";
+			Scanner scanner = new Scanner (input);
+			Token token = scanner.getNextToken ();
+			Assert.AreEqual (Token.Types.ERROR, token.Type);
+			Assert.AreEqual (1, token.Row);
+			Assert.AreEqual (0, token.Column);
+			token = scanner.getNextToken ();
+			Assert.AreEqual (Token.Types.EOS, token.Type);
+			Assert.AreEqual (1, token.Row);
+			Assert.AreEqual (5, token.Column);
+		}
 	}
 }
 
