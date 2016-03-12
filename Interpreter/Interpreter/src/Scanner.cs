@@ -8,7 +8,6 @@ namespace Interpreter
 	public class Scanner
 	{
 		private int _currentRow = 1;
-		private int _currentTokenRow = 1;
 		private int _currentColumn = 0;
 		private int _currentTokenColumn = 0;
 		private StreamReader _charStream;
@@ -22,13 +21,8 @@ namespace Interpreter
 			{"=", Token.Types.Equal},
 			{"&", Token.Types.And},
 			{"!", Token.Types.Not},
-			{":=", Token.Types.Assign}
-		};
-
-		private static Hashtable types = new Hashtable {
-			{"int", Token.Types.Int},
-			{"string", Token.Types.String},
-			{"bool", Token.Types.Bool}
+			{":=", Token.Types.Assign},
+			{"..", Token.Types.Range}
 		};
 
 		private static Hashtable reserved_keywords = new Hashtable() {
@@ -51,8 +45,6 @@ namespace Interpreter
 			{"(", Token.Types.LeftParenthesis},
 			{")", Token.Types.RightParenthesis}
 		};
-
-		private static ArrayList escapeSequences = new ArrayList{"asd"};
 
 		// used for tests
 		public Scanner(string input) {
@@ -99,7 +91,6 @@ namespace Interpreter
 
 		private int getNextChar() {
 			_currentTokenColumn = _currentColumn;
-			_currentTokenRow = _currentRow;
 			int currentChar = readNextChar ();
 			int nextChar = peekNextChar ();
 
@@ -188,17 +179,19 @@ namespace Interpreter
 		}
 
 		private Token createOperatorToken(int currentChar) {
+			// check for assign operator
+			if ((char)currentChar == ':' && (char)peekNextChar() == '=') {
+				readNextChar (); // consume the "="
+				return new Token (_currentRow, _currentTokenColumn, ":=", Token.Types.Assign);
+			} else if ((char)currentChar == '.'&& (char)peekNextChar() == '.') {
+				readNextChar (); // consume the next "."
+				return new Token (_currentRow, _currentTokenColumn, "..", Token.Types.Range);
+			}
 			string lexeme = "" + (char)currentChar;
 			return new Token (_currentRow, _currentTokenColumn, lexeme, (Token.Types)operators[lexeme]);
 		}
 
 		private Token createSymbolToken(int currentChar) {
-			// check for assign operator
-			if ((char)currentChar == ':' && (char)peekNextChar() == '=') {
-				readNextChar (); // consume the "="
-				return new Token (_currentRow, _currentTokenColumn, ":=", Token.Types.Assign);
-			}
-
 			string lexeme = "" + (char)currentChar;
 			return new Token (_currentRow, _currentTokenColumn, lexeme, (Token.Types)symbols[lexeme]);
 		}
@@ -258,8 +251,6 @@ namespace Interpreter
 		private bool isIntegerLiteral(int currentChar) {
 			if (isDigit (currentChar)) {
 				return true;
-			} else if((char)currentChar == '-' && isDigit(peekNextChar())) {
-				return true;
 			}
 
 			return false;
@@ -271,6 +262,10 @@ namespace Interpreter
 
 		private bool isOperator(int currentChar) {
 			string lexeme = "" + (char)currentChar;
+			if ((char)currentChar == ':' || (char)currentChar == '.') {
+				lexeme += (char)peekNextChar ();
+			}
+
 			return operators.ContainsKey (lexeme);
 		}
 
@@ -335,7 +330,9 @@ namespace Interpreter
 				return true;
 			} else if (isEndOfSource (currentChar)) {
 				return true;
-			} else if ((char)currentChar == ';') {
+			} else if (isSymbol(currentChar)) {
+				return true;
+			} else if (isOperator(currentChar)) {
 				return true;
 			} else {
 				return false;

@@ -321,7 +321,7 @@ namespace InterpreterTests
 
 		[Test ()]
 		public void TestDigitTokens() {
-			string input = "123 0 -10\n10";
+			string input = "123 0 10\n10";
 			Scanner scanner = new Scanner (input);
 			Token token = scanner.getNextToken ();
 			Assert.AreEqual (Token.Types.IntLiteral, token.Type);
@@ -337,7 +337,7 @@ namespace InterpreterTests
 
 			token = scanner.getNextToken ();
 			Assert.AreEqual (Token.Types.IntLiteral, token.Type);
-			Assert.AreEqual ("-10", token.Lexeme);
+			Assert.AreEqual ("10", token.Lexeme);
 			Assert.AreEqual (6, token.Column);
 			Assert.AreEqual (1, token.Row);
 
@@ -352,6 +352,8 @@ namespace InterpreterTests
 			Scanner scanner = new Scanner (input);
 			Token token = scanner.getNextToken ();
 			Assert.AreEqual (Token.Types.IntLiteral, token.Type);
+			token = scanner.getNextToken ();
+			Assert.AreEqual (Token.Types.Subtraction, token.Type);
 			token = scanner.getNextToken ();
 			Assert.AreEqual (Token.Types.IntLiteral, token.Type);
 
@@ -446,6 +448,12 @@ namespace InterpreterTests
 			Assert.AreEqual (Token.Types.EOS, token.Type);
 			Assert.AreEqual (1, token.Row);
 			Assert.AreEqual (5, token.Column);
+		}
+
+		[Test ()]
+		public void TestRangeOperator() {
+			Scanner scanner = new Scanner ("..");
+			Assert.AreEqual (Token.Types.Range, scanner.getNextToken ().Type);
 		}
 	}
 }
