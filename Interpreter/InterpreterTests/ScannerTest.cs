@@ -226,19 +226,6 @@ namespace InterpreterTests
 			token = scanner.getNextToken ();
 			Assert.AreEqual (token.Column, 7);
 		}
-			
-		[Test ()]
-		public void TestIsJustForDebuggingForNow() {
-			string input = "var X : int := 4 + (6 * 2);\n" +
-				"print X;";
-			Scanner scanner = new Scanner (input);
-			char first = (char)scanner.getNextChar ();
-			Assert.IsNotNull (first);
-			Assert.AreEqual (first, 'v');
-			for (int i = 1; i <= 30; i++) {
-				scanner.getNextChar ();
-			}
-		}
 
 		[Test ()]
 		public void TestEOS() {

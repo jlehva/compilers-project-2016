@@ -8,6 +8,7 @@ namespace Interpreter
 	public class Scanner
 	{
 		private int _currentRow = 1;
+		private int _currentTokenRow = 1;
 		private int _currentColumn = 0;
 		private int _currentTokenColumn = 0;
 		private StreamReader _charStream;
@@ -68,7 +69,6 @@ namespace Interpreter
 
 		public Token getNextToken() {
 			int currentChar = getNextChar ();
-			string currentChString = "" + (char)currentChar;
 
 			if (isEndOfSource(currentChar)) {
 				return createEOSToken ();
@@ -90,31 +90,16 @@ namespace Interpreter
 				return createStringLiteralToken ();
 			}
 
+			if (isLetter (currentChar)) {
+				return createKeywordOrIdentifierToken (currentChar);
+			}
 
-			/**
-			 * Beginning of a new Token
-			 * - if whitespace or new line (DONE)
-			 * 	- skip all of them, increase the column and line numbers (DONE)
-			 * - if stream ends, return EOS (end of source) token (DONE)
-			 * - if matches / (DONE)
-			 * 	- peek (DONE)
-			 * 		- if //, then skip the whole line (DONE)
-			 * 		- if /* then skip until * / is found (DONE)
-			 * - if matches single char token (DONE)
-			 * 	- return the token (DONE)
-			 * 	- if matched : then must Peek to see if it's := (DONE)
-			 * - if matches "
-			 * 	- string literal (scan String)
-				* - if digit (DONE)
-			 * - if letter
-			 * 	- keyword
-			 * 	- identifier
-					**/
-					return new Token(1, 2, "asd", Token.Types.Addition);
+			return new Token(_currentRow, _currentTokenColumn, ""+(char)currentChar, Token.Types.ERROR);
 		}
 
-		public int getNextChar() {
+		private int getNextChar() {
 			_currentTokenColumn = _currentColumn;
+			_currentTokenRow = _currentRow;
 			int currentChar = readNextChar ();
 			int nextChar = peekNextChar ();
 
@@ -123,8 +108,8 @@ namespace Interpreter
 				return currentChar;
 			}
 
-			// skip whitespaces
-			if (isWhitespace(currentChar)) {
+			// skip whitespaces and end of line
+			if (skipWhitespaceAndEndOfLine(currentChar)) {
 				return getNextChar ();
 			}
 
@@ -141,7 +126,6 @@ namespace Interpreter
 			// consume the first "-character
 			int currentChar = readNextChar();
 			string lexeme = "";
-			System.Console.WriteLine ("String literal: " + currentChar + " == " + (char)currentChar);
 
 			while(true) {
 				if (isEndOfSource (currentChar)) {
@@ -169,6 +153,32 @@ namespace Interpreter
 			return new Token(_currentRow, _currentTokenColumn, lexeme, Token.Types.StringLiteral);
 		}
 
+		private Token createKeywordOrIdentifierToken(int currentChar) {
+			bool malformedToken = false;
+			string lexeme = "" + (char)currentChar;
+
+			while (!isEndOfKeywordOrIdentifier(peekNextChar())) {
+				currentChar = readNextChar ();
+
+				// expect the lexeme to only contain letters
+				if (!isLetter (currentChar)) {
+					malformedToken = true;
+				}
+
+				lexeme += (char)currentChar;
+			}
+
+			if (malformedToken) {
+				return new Token (_currentRow, _currentTokenColumn, lexeme, Token.Types.ERROR);
+			}
+
+			if (reserved_keywords.ContainsKey (lexeme)) {
+				return new Token (_currentRow, _currentTokenColumn, lexeme, (Token.Types)reserved_keywords[lexeme]);
+			}
+
+			return new Token (_currentRow, _currentTokenColumn, lexeme, Token.Types.Identifier);
+		}
+
 		private Token createIntLiteralToken(int currentChar) {
 			String lexeme = "" + (char)currentChar;
 			while (isDigit(peekNextChar())) {
@@ -177,69 +187,24 @@ namespace Interpreter
 			return new Token (_currentRow, _currentTokenColumn, lexeme, Token.Types.IntLiteral);
 		}
 
-		private bool isIntegerLiteral(int currentChar) {
-			if (isDigit (currentChar)) {
-				return true;
-			} else if((char)currentChar == '-' && isDigit(peekNextChar())) {
-				return true;
-			}
-
-			return false;
-		}
-
-		private bool isStringLiteral(int currentChar) {
-			return currentChar == 34;
-		}
-
-		private bool isOperator(int currentChar) {
-			string currentChString = "" + (char)currentChar;
-			return operators.ContainsKey (currentChString);
-		}
-
-		private bool isSymbol(int currentChar) {
-			string currentChString = "" + (char)currentChar;
-			return symbols.ContainsKey (currentChString);
-		}
-
-		private bool isDigit(int currentChar) {
-			return Char.IsDigit ((char)currentChar);
-		}
-
 		private Token createOperatorToken(int currentChar) {
-			string currentChString = "" + (char)currentChar;
-			return new Token (_currentRow, _currentTokenColumn, currentChString, (Token.Types)operators[currentChString]);
+			string lexeme = "" + (char)currentChar;
+			return new Token (_currentRow, _currentTokenColumn, lexeme, (Token.Types)operators[lexeme]);
 		}
 
 		private Token createSymbolToken(int currentChar) {
 			// check for assign operator
 			if ((char)currentChar == ':' && (char)peekNextChar() == '=') {
 				readNextChar (); // consume the "="
-				string lexeme = ":=";
-				return new Token (_currentRow, _currentTokenColumn, lexeme, Token.Types.Assign);
+				return new Token (_currentRow, _currentTokenColumn, ":=", Token.Types.Assign);
 			}
 
-			string currentChString = "" + (char)currentChar;
-			return new Token (_currentRow, _currentTokenColumn, currentChString, (Token.Types)symbols[currentChString]);
+			string lexeme = "" + (char)currentChar;
+			return new Token (_currentRow, _currentTokenColumn, lexeme, (Token.Types)symbols[lexeme]);
 		}
 
 		private Token createEOSToken() {
 			return new Token (_currentRow, _currentTokenColumn, "", Token.Types.EOS);
-		}
-
-		private bool isComment(int currentChar, int nextChar) {
-			if (isMultilineComment(currentChar, nextChar) || (char)nextChar == '/') {
-				return true;
-			}
-
-			return false;
-		}
-
-		private bool isMultilineComment(int currentChar, int nextChar) {
-			if ((char)currentChar == '/' && (char)nextChar == '*') {
-				return true;
-			}
-
-			return false;
 		}
 
 		private void skipComment() {
@@ -274,22 +239,73 @@ namespace Interpreter
 					} else if (isEndOfSource(currentChar)) {
 						break;
 					} else if (isEndOfLine(currentChar)) {
-						incrementRow ();
+						incrementRowAndResetColumn ();
 					}
 				}
 			}
 		}
-			
-		private bool isWhitespace(int currentChar) {
+
+		private bool skipWhitespaceAndEndOfLine(int currentChar) {
 			// if char is 10 (\n), then increase the line number by 1
 			if (isEndOfLine(currentChar)) {
-				incrementRow ();
+				incrementRowAndResetColumn ();
 				return true;
 			}
-				
+
+			return isWhitespace (currentChar);
+		}
+
+		private bool isIntegerLiteral(int currentChar) {
+			if (isDigit (currentChar)) {
+				return true;
+			} else if((char)currentChar == '-' && isDigit(peekNextChar())) {
+				return true;
+			}
+
+			return false;
+		}
+
+		private bool isStringLiteral(int currentChar) {
+			return currentChar == 34;
+		}
+
+		private bool isOperator(int currentChar) {
+			string lexeme = "" + (char)currentChar;
+			return operators.ContainsKey (lexeme);
+		}
+
+		private bool isSymbol(int currentChar) {
+			string lexeme = "" + (char)currentChar;
+			return symbols.ContainsKey (lexeme);
+		}
+
+		private bool isLetter(int currentChar) {
+			return Char.IsLetter ((char)currentChar);
+		}
+
+		private bool isDigit(int currentChar) {
+			return Char.IsDigit ((char)currentChar);
+		}
+
+		private bool isComment(int currentChar, int nextChar) {
+			if (isMultilineComment(currentChar, nextChar) || (char)nextChar == '/') {
+				return true;
+			}
+
+			return false;
+		}
+
+		private bool isMultilineComment(int currentChar, int nextChar) {
+			if ((char)currentChar == '/' && (char)nextChar == '*') {
+				return true;
+			}
+
+			return false;
+		}
+			
+		private bool isWhitespace(int currentChar) {
 			// if "normal" whitespace
 			if (Char.IsWhiteSpace ((char)currentChar)) {
-				// _currentColumn++;
 				return true;
 			}
 
@@ -312,6 +328,20 @@ namespace Interpreter
 			return false;
 		}
 
+		private bool isEndOfKeywordOrIdentifier(int currentChar) {
+			if (isWhitespace (currentChar)) {
+				return true;
+			} else if (isEndOfLine (currentChar)) {
+				return true;
+			} else if (isEndOfSource (currentChar)) {
+				return true;
+			} else if ((char)currentChar == ';') {
+				return true;
+			} else {
+				return false;
+			}
+		}
+
 		private int peekNextChar() {
 			return _charStream.Peek ();
 		}
@@ -324,10 +354,9 @@ namespace Interpreter
 			return currentChar;
 		}
 
-		private void incrementRow() {
+		private void incrementRowAndResetColumn() {
 			_currentRow++;
 			_currentColumn = 0;
 		}
 	}
 }
-
