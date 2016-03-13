@@ -2,19 +2,19 @@
 
 namespace Interpreter
 {
-	public class Parser
-	{
-		private Scanner scanner;
+    public class Parser
+    {
+        private Scanner scanner;
 
-		public Parser (Scanner scanner)
-		{
-			this.scanner = scanner;
-		}
+        public Parser (Scanner scanner)
+        {
+            this.scanner = scanner;
+        }
 
-		public void parse()
-		{
-			this.scanner.getNextToken ();
-		}
-	}
+        public void parse ()
+        {
+            this.scanner.getNextToken ();
+        }
+    }
 }
 
