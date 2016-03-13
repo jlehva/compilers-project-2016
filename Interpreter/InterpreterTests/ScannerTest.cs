@@ -455,5 +455,16 @@ namespace InterpreterTests
             Scanner scanner = new Scanner ("..");
             Assert.AreEqual (Token.Types.Range, scanner.getNextToken ().Type);
         }
+
+        [Test ()]
+        public void TestBooleans() {
+            Scanner scanner = new Scanner ("true false");
+            Token token = scanner.getNextToken ();
+            Assert.AreEqual (Token.Types.BoolLiteral, token.Type);
+            Assert.AreEqual ("true", token.Lexeme);
+            token = scanner.getNextToken ();
+            Assert.AreEqual (Token.Types.BoolLiteral, token.Type);
+            Assert.AreEqual ("false", token.Lexeme);
+        }
     }
 }

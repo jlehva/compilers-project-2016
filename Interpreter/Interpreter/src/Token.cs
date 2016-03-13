@@ -37,13 +37,13 @@ namespace Interpreter
             Semicolon,
             IntLiteral,
             StringLiteral,
+            BoolLiteral,
             LeftParenthesis,
             RightParenthesis,
             NONE,
             EOS,
             ERROR,
             Range
-
         }
 
         public Token ()

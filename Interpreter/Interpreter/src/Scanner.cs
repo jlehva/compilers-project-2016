@@ -36,7 +36,9 @@ namespace Interpreter
             { "int", Token.Types.Int },
             { "string", Token.Types.String },
             { "bool", Token.Types.Bool },
-            { "assert", Token.Types.Assert }
+            { "assert", Token.Types.Assert },
+            { "true", Token.Types.BoolLiteral },
+            { "false", Token.Types.BoolLiteral }
         };
 
         private static Hashtable symbols = new Hashtable () {
