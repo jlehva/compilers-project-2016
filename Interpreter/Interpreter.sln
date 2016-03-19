@@ -28,6 +28,7 @@ Global
 		$1.inheritsScope = text/plain
 		$1.scope = text/x-csharp
 		$0.CSharpFormattingPolicy = $2
+		$2.IndentSwitchBody = True
 		$2.AfterDelegateDeclarationParameterComma = True
 		$2.inheritsSet = Mono
 		$2.inheritsScope = text/x-csharp

@@ -24,77 +24,77 @@ namespace InterpreterTests
             Scanner scanner = new Scanner (app);
             Token token;
 
-            Assert.AreEqual(Token.Types.Var, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Identifier, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Colon, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Int, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Assign, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.IntLiteral, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Semicolon, scanner.getNextToken ().Type);
+            Assert.AreEqual(Token.Types.Var, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Identifier, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Colon, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Int, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Assign, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.IntLiteral, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Semicolon, scanner.GetNextToken ().Type);
 
-            Assert.AreEqual(Token.Types.Print, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.StringLiteral, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Semicolon, scanner.getNextToken ().Type);
+            Assert.AreEqual(Token.Types.Print, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.StringLiteral, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Semicolon, scanner.GetNextToken ().Type);
 
-            Assert.AreEqual(Token.Types.Read, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Identifier, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Semicolon, scanner.getNextToken ().Type);
+            Assert.AreEqual(Token.Types.Read, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Identifier, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Semicolon, scanner.GetNextToken ().Type);
 
-            Assert.AreEqual(Token.Types.Var, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Identifier, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Colon, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Int, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Semicolon, scanner.getNextToken ().Type);
+            Assert.AreEqual(Token.Types.Var, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Identifier, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Colon, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Int, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Semicolon, scanner.GetNextToken ().Type);
 
-            token = scanner.getNextToken ();
+            token = scanner.GetNextToken ();
             Assert.AreEqual(Token.Types.For, token.Type);
             Assert.AreEqual(5, token.Row);
             Assert.AreEqual(0, token.Column);
-            token = scanner.getNextToken ();
+            token = scanner.GetNextToken ();
             Assert.AreEqual(Token.Types.Identifier, token.Type);
             Assert.AreEqual(4, token.Column);
-            token = scanner.getNextToken ();
+            token = scanner.GetNextToken ();
             Assert.AreEqual(Token.Types.In, token.Type);
             Assert.AreEqual(6, token.Column);
-            token = scanner.getNextToken ();
+            token = scanner.GetNextToken ();
             Assert.AreEqual(Token.Types.IntLiteral, token.Type);
             Assert.AreEqual(9, token.Column);
-            token = scanner.getNextToken ();
+            token = scanner.GetNextToken ();
             Assert.AreEqual(Token.Types.Range, token.Type);
             Assert.AreEqual(10, token.Column);
-            token = scanner.getNextToken ();
+            token = scanner.GetNextToken ();
             Assert.AreEqual(Token.Types.Identifier, token.Type);
             Assert.AreEqual(12, token.Column);
-            token = scanner.getNextToken ();
+            token = scanner.GetNextToken ();
             Assert.AreEqual(Token.Types.Subtraction, token.Type);
             Assert.AreEqual(18, token.Column);
-            token = scanner.getNextToken ();
+            token = scanner.GetNextToken ();
             Assert.AreEqual(Token.Types.IntLiteral, token.Type);
             Assert.AreEqual(19, token.Column);
-            token = scanner.getNextToken ();
+            token = scanner.GetNextToken ();
             Assert.AreEqual(Token.Types.Do, token.Type);
             Assert.AreEqual(21, token.Column);
 
-            Assert.AreEqual(Token.Types.Print, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Identifier, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Semicolon, scanner.getNextToken ().Type);
+            Assert.AreEqual(Token.Types.Print, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Identifier, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Semicolon, scanner.GetNextToken ().Type);
 
-            Assert.AreEqual(Token.Types.Print, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.StringLiteral, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Semicolon, scanner.getNextToken ().Type);
+            Assert.AreEqual(Token.Types.Print, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.StringLiteral, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Semicolon, scanner.GetNextToken ().Type);
 
-            Assert.AreEqual(Token.Types.End, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.For, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Semicolon, scanner.getNextToken ().Type);
+            Assert.AreEqual(Token.Types.End, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.For, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Semicolon, scanner.GetNextToken ().Type);
 
-            Assert.AreEqual(Token.Types.Assert, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.LeftParenthesis, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Identifier, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Equal, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Identifier, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.RightParenthesis, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Semicolon, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.EOS, scanner.getNextToken ().Type);
+            Assert.AreEqual(Token.Types.Assert, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.LeftParenthesis, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Identifier, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Equal, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Identifier, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.RightParenthesis, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Semicolon, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.EOS, scanner.GetNextToken ().Type);
         }
 
         [Test ()]
@@ -114,61 +114,61 @@ namespace InterpreterTests
 
             Scanner scanner = new Scanner (app);
 
-            Assert.AreEqual(Token.Types.Print, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.StringLiteral, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Semicolon, scanner.getNextToken ().Type);
+            Assert.AreEqual(Token.Types.Print, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.StringLiteral, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Semicolon, scanner.GetNextToken ().Type);
 
-            Assert.AreEqual(Token.Types.Var, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Identifier, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Colon, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Int, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Semicolon, scanner.getNextToken ().Type);
+            Assert.AreEqual(Token.Types.Var, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Identifier, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Colon, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Int, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Semicolon, scanner.GetNextToken ().Type);
 
-            Assert.AreEqual(Token.Types.Read, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Identifier, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Semicolon, scanner.getNextToken ().Type);
+            Assert.AreEqual(Token.Types.Read, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Identifier, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Semicolon, scanner.GetNextToken ().Type);
 
-            Assert.AreEqual(Token.Types.Var, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Identifier, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Colon, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Int, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Assign, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.IntLiteral, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Semicolon, scanner.getNextToken ().Type);
+            Assert.AreEqual(Token.Types.Var, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Identifier, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Colon, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Int, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Assign, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.IntLiteral, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Semicolon, scanner.GetNextToken ().Type);
 
-            Assert.AreEqual(Token.Types.Var, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Identifier, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Colon, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Int, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Semicolon, scanner.getNextToken ().Type);
+            Assert.AreEqual(Token.Types.Var, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Identifier, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Colon, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Int, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Semicolon, scanner.GetNextToken ().Type);
 
-            Assert.AreEqual(Token.Types.For, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Identifier, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.In, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.IntLiteral, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Range, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Identifier, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Do, scanner.getNextToken ().Type);
+            Assert.AreEqual(Token.Types.For, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Identifier, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.In, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.IntLiteral, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Range, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Identifier, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Do, scanner.GetNextToken ().Type);
 
-            Assert.AreEqual(Token.Types.Identifier, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Assign, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Identifier, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Multiplication, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Identifier, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Semicolon, scanner.getNextToken ().Type);
+            Assert.AreEqual(Token.Types.Identifier, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Assign, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Identifier, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Multiplication, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Identifier, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Semicolon, scanner.GetNextToken ().Type);
 
-            Assert.AreEqual(Token.Types.End, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.For, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Semicolon, scanner.getNextToken ().Type);
+            Assert.AreEqual(Token.Types.End, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.For, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Semicolon, scanner.GetNextToken ().Type);
 
-            Assert.AreEqual(Token.Types.Print, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.StringLiteral, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Semicolon, scanner.getNextToken ().Type);
+            Assert.AreEqual(Token.Types.Print, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.StringLiteral, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Semicolon, scanner.GetNextToken ().Type);
 
-            Assert.AreEqual(Token.Types.Print, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Identifier, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.Semicolon, scanner.getNextToken ().Type);
-            Assert.AreEqual(Token.Types.EOS, scanner.getNextToken ().Type);
+            Assert.AreEqual(Token.Types.Print, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Identifier, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.Semicolon, scanner.GetNextToken ().Type);
+            Assert.AreEqual(Token.Types.EOS, scanner.GetNextToken ().Type);
         }
     }
 }

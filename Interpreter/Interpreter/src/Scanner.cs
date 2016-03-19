@@ -63,7 +63,7 @@ namespace Interpreter
             _charStream = charStream;
         }
 
-        public Token getNextToken ()
+        public Token GetNextToken ()
         {
             int currentChar = getNextChar ();
 
