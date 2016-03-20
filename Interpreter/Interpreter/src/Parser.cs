@@ -321,6 +321,7 @@ namespace Interpreter
                 default:
                     {
                         AddError ("Invalid operand: " + currentToken.Type);
+                        return;
                     }
             }
         }
@@ -378,11 +379,13 @@ namespace Interpreter
                 default:
                     {
                         AddError ("Invalid type: " + currentToken.Type);
+                        return;
                     }
             }
         }
 
         private void Match(Token.Types type) {
+            System.Console.WriteLine (type);
             if ((Token.Types)currentToken.Type == type) {
                 ReadNextToken ();
             } else {

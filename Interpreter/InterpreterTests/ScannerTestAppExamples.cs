@@ -8,7 +8,7 @@ namespace InterpreterTests
     public class ScannerTestAppExampleOne
     {
         [Test ()]
-        public void TestAppExampleOne ()
+        public void TestAppExampleTwo ()
         {
             string app = 
                 "var nTimes : int := 0;\n" +
@@ -98,7 +98,7 @@ namespace InterpreterTests
         }
 
         [Test ()]
-        public void TestAppExampleTwo ()
+        public void TestAppExampleThree ()
         {
             string app = 
                 "print \"Give a number\";\n" +
