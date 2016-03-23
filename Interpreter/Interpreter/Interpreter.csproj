@@ -53,6 +53,8 @@
     <Compile Include="src\Ast\type\Type.cs" />
     <Compile Include="src\Ast\stmt\AssignmentStmt.cs" />
     <Compile Include="src\Ast\expr\Expression.cs" />
+    <Compile Include="src\Ast\expr\NotExpr.cs" />
+    <Compile Include="src\Ast\expr\UnaryExpr.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -130,35 +130,41 @@ namespace Interpreter
                 (Token.Types)currentToken.Type == Token.Types.StringLiteral ||
                 (Token.Types)currentToken.Type == Token.Types.Identifier ||
                 (Token.Types)currentToken.Type == Token.Types.BoolLiteral) {
-                ExprB ();
-                ExprLogical ();
-            } else if ((Token.Types)currentToken.Type == Token.Types.Not) {
-                Match (Token.Types.Not);
-                Expr ();
-            } else {
-                AddError ("Expected Expr, got something else: " + currentToken.Type);
-            }
+                Expression left = Conjuct ();
+                Expression right = ExprLogical ();
 
-            return new Expression (currentToken.Row); // TODO
+                if (right == null) {
+                    return left;
+                } else {
+                    return new 
+                }
+            } else if ((Token.Types)currentToken.Type == Token.Types.Not) {
+                Token not = Match (Token.Types.Not);
+                return new UnaryExpr(new NotExpr(not.Row), Expr (), not.Row);
+            } else {
+                throw new SyntaxError ("Syntax Error: invalid token to start expression " + currentToken.Type + " on row " + 
+                    currentToken.Row + "and column " + currentToken.Column);
+            }
         }
 
-        private void ExprLogical ()
+        private Expression ExprLogical ()
         {
             if ((Token.Types)currentToken.Type == Token.Types.And) {
-                Logicalop ();
-                ExprB ();
+                LogicalOp ();
+                Conjuct ();
                 ExprLogical ();
             } else if ((Token.Types)currentToken.Type == Token.Types.RightParenthesis ||
                        (Token.Types)currentToken.Type == Token.Types.Range ||
                        (Token.Types)currentToken.Type == Token.Types.Do ||
                        (Token.Types)currentToken.Type == Token.Types.Semicolon) {
-                return;
+                return null;
             } else {
-                AddError ("error");
+                throw new SyntaxError ("Syntax Error: invalid token to start expression " + currentToken.Type + " on row " + 
+                    currentToken.Row + "and column " + currentToken.Column);
             }
         }
 
-        private void ExprB ()
+        private void Conjuct ()
         {
             if ((Token.Types)currentToken.Type == Token.Types.LeftParenthesis ||
                 (Token.Types)currentToken.Type == Token.Types.IntLiteral ||
@@ -166,19 +172,19 @@ namespace Interpreter
                 (Token.Types)currentToken.Type == Token.Types.Identifier ||
                 (Token.Types)currentToken.Type == Token.Types.BoolLiteral) {
                 ExprC ();
-                ExprComparison ();
+                ExprRelational ();
             } else {
                 AddError ("error");
             }
         }
 
-        private void ExprComparison ()
+        private void ExprRelational ()
         {
             if ((Token.Types)currentToken.Type == Token.Types.Equal ||
                 (Token.Types)currentToken.Type == Token.Types.Less) {
-                Comparisonop ();
+                RelationalOp ();
                 ExprC ();
-                ExprComparison ();
+                ExprRelational ();
             } else if ((Token.Types)currentToken.Type == Token.Types.And ||
                        (Token.Types)currentToken.Type == Token.Types.RightParenthesis ||
                        (Token.Types)currentToken.Type == Token.Types.Range ||
@@ -197,7 +203,7 @@ namespace Interpreter
                 (Token.Types)currentToken.Type == Token.Types.StringLiteral ||
                 (Token.Types)currentToken.Type == Token.Types.Identifier ||
                 (Token.Types)currentToken.Type == Token.Types.BoolLiteral) {
-                ExprD ();
+                Term ();
                 ExprAdd ();
             } else {
                 AddError ("error");
@@ -208,8 +214,8 @@ namespace Interpreter
         {
             if ((Token.Types)currentToken.Type == Token.Types.Addition ||
                 (Token.Types)currentToken.Type == Token.Types.Subtraction) {
-                Addop ();
-                ExprD ();
+                AddOp ();
+                Term ();
                 ExprAdd ();
             } else if ((Token.Types)currentToken.Type == Token.Types.Equal ||
                        (Token.Types)currentToken.Type == Token.Types.Less ||
@@ -224,7 +230,7 @@ namespace Interpreter
             }
         }
 
-        private void ExprD ()
+        private void Term ()
         {
             if ((Token.Types)currentToken.Type == Token.Types.LeftParenthesis ||
                 (Token.Types)currentToken.Type == Token.Types.IntLiteral ||
@@ -232,7 +238,7 @@ namespace Interpreter
                 (Token.Types)currentToken.Type == Token.Types.StringLiteral ||
                 (Token.Types)currentToken.Type == Token.Types.Identifier ||
                 (Token.Types)currentToken.Type == Token.Types.BoolLiteral) {
-                ExprE ();
+                Factor ();
                 ExprMult ();
             } else {
                 AddError ("error");
@@ -243,8 +249,8 @@ namespace Interpreter
         {
             if ((Token.Types)currentToken.Type == Token.Types.Multiplication ||
                 (Token.Types)currentToken.Type == Token.Types.Division) {
-                Multop ();
-                ExprE ();
+                MultOp ();
+                Factor ();
                 ExprMult ();
             } else if ((Token.Types)currentToken.Type == Token.Types.Addition ||
                        (Token.Types)currentToken.Type == Token.Types.Subtraction ||
@@ -261,7 +267,7 @@ namespace Interpreter
             }
         }
 
-        private void ExprE ()
+        private void Factor ()
         {
             if ((Token.Types)currentToken.Type == Token.Types.LeftParenthesis) {
                 Match (Token.Types.LeftParenthesis);
@@ -271,11 +277,11 @@ namespace Interpreter
                        (Token.Types)currentToken.Type == Token.Types.StringLiteral ||
                        (Token.Types)currentToken.Type == Token.Types.Identifier ||
                        (Token.Types)currentToken.Type == Token.Types.BoolLiteral) {
-                Opnd ();
+                Value ();
             }
         }
 
-        private void Opnd ()
+        private void Value ()
         {
             switch ((Token.Types)currentToken.Type) {
                 case Token.Types.IntLiteral:
@@ -306,12 +312,12 @@ namespace Interpreter
             }
         }
 
-        private void Logicalop ()
+        private void LogicalOp ()
         {
             Match (Token.Types.And);
         }
 
-        private void Comparisonop ()
+        private void RelationalOp ()
         {
             if ((Token.Types)currentToken.Type == Token.Types.Equal) {
                 Match (Token.Types.Equal);
@@ -320,7 +326,7 @@ namespace Interpreter
             }
         }
 
-        private void Addop ()
+        private void AddOp ()
         {
             if ((Token.Types)currentToken.Type == Token.Types.Addition) {   
                 Match (Token.Types.Addition);
@@ -329,7 +335,7 @@ namespace Interpreter
             }
         }
 
-        private void Multop ()
+        private void MultOp ()
         {
             if ((Token.Types)currentToken.Type == Token.Types.Multiplication) { 
                 Match (Token.Types.Multiplication);
@@ -368,7 +374,7 @@ namespace Interpreter
                 throw new LexicalError ("Lexical Error: malformed token \"" + currentToken.Lexeme + "\" on row " + currentToken.Row +
                 "and column " + currentToken.Column);
             } else {
-                throw new SyntaxError ("Syntax Error: unsupported token " + currentToken.Type + " on row " + currentToken.Row +
+                throw new SyntaxError ("Syntax Error: invalid token " + currentToken.Type + " on row " + currentToken.Row +
                 "and column " + currentToken.Column + ", expected: " + type);
             }
         }
