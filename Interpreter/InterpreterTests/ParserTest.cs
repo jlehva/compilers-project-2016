@@ -58,6 +58,33 @@ namespace InterpreterTests
             parser.Parse ();
             Assert.AreEqual (0, parser.GetErrors ().Count);
         }
+
+        [Test ()]
+        public void TestVarDeclStmtAst() {
+            string app = "var n : int;";
+            Parser parser = new Parser (new Scanner (app));
+            Program prog = parser.Parse ();
+            VarDeclStmt stmt = (VarDeclStmt)prog.Statements.Left;
+            VarDeclStmt expected = new VarDeclStmt (new IntType (1), "n", 1);
+            Assert.AreEqual (stmt.Name, expected.Name);
+            Assert.AreEqual (stmt.Type.ToString (), expected.Type.ToString ());
+            Assert.AreEqual (stmt.Row, expected.Row);
+            Assert.AreEqual (prog.Statements.Right.Left, null);
+            Assert.AreEqual (prog.Statements.Right.Right, null);
+        }
+
+        [Test ()]
+        public void TestAssignmentStmttAst() {
+            string app = "var v : int := 1;";
+            Parser parser = new Parser (new Scanner (app));
+            Program prog = parser.Parse ();
+            VarDeclStmt stmt = (VarDeclStmt)prog.Statements.Left;
+            VarDeclStmt varDeclStmt = new VarDeclStmt (new IntType (1), "v", 1);
+            AssignmentStmt assignmentStmt = new AssignmentStmt (varDeclStmt);
+            Assert.AreEqual (stmt.Name, expected.Name);
+            Assert.AreEqual (stmt.Type.ToString (), expected.Type.ToString ());
+            Assert.AreEqual (stmt.Row, expected.Row);
+        }
     }
 }
 

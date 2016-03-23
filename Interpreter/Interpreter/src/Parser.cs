@@ -35,10 +35,10 @@ namespace Interpreter
                 (Token.Types)currentToken.Type == Token.Types.Read ||
                 (Token.Types)currentToken.Type == Token.Types.Print ||
                 (Token.Types)currentToken.Type == Token.Types.Assert) {
-                return new Program(Stmts ());
+                return new Program (Stmts (), currentToken.Row);
             } else {
-                AddError ("Invalid start symbol: " + currentToken.Type);
-                return new Program ();
+                AddError ("Invalid start symbol: " + currentToken.Lexeme);
+                return new Program (currentToken.Row);
             }
         }
 
@@ -49,15 +49,14 @@ namespace Interpreter
                 (Token.Types)currentToken.Type == Token.Types.For ||
                 (Token.Types)currentToken.Type == Token.Types.Read ||
                 (Token.Types)currentToken.Type == Token.Types.Print ||
-                (Token.Types)currentToken.Type == Token.Types.Assert) 
-            {
+                (Token.Types)currentToken.Type == Token.Types.Assert) {
                 Statement left = Stmt ();
                 Match (Token.Types.Semicolon);
                 Stmts right = Stmts ();
-                return new Stmts (left, right);
+                return new Stmts (left, right, currentToken.Row);
             } else if ((Token.Types)currentToken.Type == Token.Types.End ||
-                (Token.Types)currentToken.Type == Token.Types.EOS) {
-                return new Stmts (); // end of statements
+                       (Token.Types)currentToken.Type == Token.Types.EOS) {
+                return new Stmts (currentToken.Row); // end of statements
             } else {
                 AddError ("Invalid statement: " + currentToken.Type);
                 SkipToNextStatement ();
@@ -69,77 +68,62 @@ namespace Interpreter
         {
             switch ((Token.Types)currentToken.Type) {
                 case Token.Types.Var:
-                    {
-                        // VarDeclStmt
-                        Match (Token.Types.Var);
-                        Match (Token.Types.Identifier);
-                        Match (Token.Types.Colon);
-                        Type ();
-                        Assign ();
-                        return;
-                    }
+                    // VarDeclStmt
+                    Match (Token.Types.Var);
+                    Token variable = Match (Token.Types.Identifier);
+                    Match (Token.Types.Colon);
+                    Type type = Type ();
+                    VarDeclStmt varDeclaration = new VarDeclStmt (type, variable.Lexeme, variable.Row);
+                    return Assign (varDeclaration);
                 case Token.Types.Identifier:
-                    {
-                        Match (Token.Types.Identifier);
-                        Match (Token.Types.Assign);
-                        Expr ();
-                        return;   
-                    }
+                    Match (Token.Types.Identifier);
+                    Match (Token.Types.Assign);
+                    Expr ();
+                    return new Statement (currentToken.Row); // TODO  
                 case Token.Types.For:
-                    {
-                        Match (Token.Types.For);
-                        Match (Token.Types.Identifier);
-                        Match (Token.Types.In);
-                        Expr ();
-                        Match (Token.Types.Range);
-                        Expr ();
-                        Match (Token.Types.Do);
-                        Stmts ();
-                        Match (Token.Types.End);
-                        Match (Token.Types.For);
-                        return;
-                    }
+                    Match (Token.Types.For);
+                    Match (Token.Types.Identifier);
+                    Match (Token.Types.In);
+                    Expr ();
+                    Match (Token.Types.Range);
+                    Expr ();
+                    Match (Token.Types.Do);
+                    Stmts ();
+                    Match (Token.Types.End);
+                    Match (Token.Types.For);
+                    return new Statement (currentToken.Row); // TODO
                 case Token.Types.Read:
-                    {
-                        Match (Token.Types.Read);
-                        Match (Token.Types.Identifier);
-                        return;   
-                    }
+                    Match (Token.Types.Read);
+                    Match (Token.Types.Identifier);
+                    return new Statement (currentToken.Row); // TODO  
                 case Token.Types.Print:
-                    {
-                        Match (Token.Types.Print);
-                        Expr ();
-                        return;
-                    }
+                    Match (Token.Types.Print);
+                    Expr ();
+                    return new Statement (currentToken.Row); // TODO
                 case Token.Types.Assert:
-                    {
-                        Match (Token.Types.Assert);
-                        Match (Token.Types.LeftParenthesis);
-                        Expr ();
-                        Match (Token.Types.RightParenthesis);
-                        return;   
-                    }
+                    Match (Token.Types.Assert);
+                    Match (Token.Types.LeftParenthesis);
+                    Expr ();
+                    Match (Token.Types.RightParenthesis);
+                    return new Statement (currentToken.Row); // TODO   
                 default:
-                    {
-                        AddError ("Invalid start symbol: " + currentToken.Type);
-                        return;
-                    }
+                    throw new SyntaxError ("temp message");
             }
         }
 
-        private void Assign ()
+        private Statement Assign (VarDeclStmt varDeclStmt)
         {
             if ((Token.Types)currentToken.Type == Token.Types.Assign) {
-                Match (Token.Types.Assign);
-                Expr ();
+                Token assign = Match (Token.Types.Assign);
+                return new AssignmentStmt (varDeclStmt, Expr (), assign.Row);
             } else if ((Token.Types)currentToken.Type == Token.Types.Semicolon) {
-                return;
+                return varDeclStmt;
             } else {
-                AddError ("Expected Assign, got something else: " + currentToken.Type);
+                throw new SyntaxError ("Expected Assign, got something else: " + currentToken.Type);
             }
         }
 
-        private void Expr ()
+        private Expression Expr ()
         {
             if ((Token.Types)currentToken.Type == Token.Types.LeftParenthesis ||
                 (Token.Types)currentToken.Type == Token.Types.IntLiteral ||
@@ -154,8 +138,10 @@ namespace Interpreter
             } else {
                 AddError ("Expected Expr, got something else: " + currentToken.Type);
             }
+
+            return new Expression (currentToken.Row); // TODO
         }
-            
+
         private void ExprLogical ()
         {
             if ((Token.Types)currentToken.Type == Token.Types.And) {
@@ -163,15 +149,15 @@ namespace Interpreter
                 ExprB ();
                 ExprLogical ();
             } else if ((Token.Types)currentToken.Type == Token.Types.RightParenthesis ||
-                (Token.Types)currentToken.Type == Token.Types.Range ||
-                (Token.Types)currentToken.Type == Token.Types.Do ||
-                (Token.Types)currentToken.Type == Token.Types.Semicolon) {
+                       (Token.Types)currentToken.Type == Token.Types.Range ||
+                       (Token.Types)currentToken.Type == Token.Types.Do ||
+                       (Token.Types)currentToken.Type == Token.Types.Semicolon) {
                 return;
             } else {
                 AddError ("error");
             }
         }
-            
+
         private void ExprB ()
         {
             if ((Token.Types)currentToken.Type == Token.Types.LeftParenthesis ||
@@ -185,7 +171,7 @@ namespace Interpreter
                 AddError ("error");
             }
         }
-            
+
         private void ExprComparison ()
         {
             if ((Token.Types)currentToken.Type == Token.Types.Equal ||
@@ -194,16 +180,16 @@ namespace Interpreter
                 ExprC ();
                 ExprComparison ();
             } else if ((Token.Types)currentToken.Type == Token.Types.And ||
-                (Token.Types)currentToken.Type == Token.Types.RightParenthesis ||
-                (Token.Types)currentToken.Type == Token.Types.Range ||
-                (Token.Types)currentToken.Type == Token.Types.Do ||
-                (Token.Types)currentToken.Type == Token.Types.Semicolon) {
+                       (Token.Types)currentToken.Type == Token.Types.RightParenthesis ||
+                       (Token.Types)currentToken.Type == Token.Types.Range ||
+                       (Token.Types)currentToken.Type == Token.Types.Do ||
+                       (Token.Types)currentToken.Type == Token.Types.Semicolon) {
                 return;
             } else {
                 AddError ("error");
             }
         }
-            
+
         private void ExprC ()
         {
             if ((Token.Types)currentToken.Type == Token.Types.LeftParenthesis ||
@@ -217,7 +203,7 @@ namespace Interpreter
                 AddError ("error");
             }
         }
-            
+
         private void ExprAdd ()
         {
             if ((Token.Types)currentToken.Type == Token.Types.Addition ||
@@ -226,18 +212,18 @@ namespace Interpreter
                 ExprD ();
                 ExprAdd ();
             } else if ((Token.Types)currentToken.Type == Token.Types.Equal ||
-                (Token.Types)currentToken.Type == Token.Types.Less ||
-                (Token.Types)currentToken.Type == Token.Types.And ||
-                (Token.Types)currentToken.Type == Token.Types.RightParenthesis ||
-                (Token.Types)currentToken.Type == Token.Types.Range ||
-                (Token.Types)currentToken.Type == Token.Types.Do ||
-                (Token.Types)currentToken.Type == Token.Types.Semicolon) {
+                       (Token.Types)currentToken.Type == Token.Types.Less ||
+                       (Token.Types)currentToken.Type == Token.Types.And ||
+                       (Token.Types)currentToken.Type == Token.Types.RightParenthesis ||
+                       (Token.Types)currentToken.Type == Token.Types.Range ||
+                       (Token.Types)currentToken.Type == Token.Types.Do ||
+                       (Token.Types)currentToken.Type == Token.Types.Semicolon) {
                 return;
             } else {
                 AddError ("error");
             }
         }
-            
+
         private void ExprD ()
         {
             if ((Token.Types)currentToken.Type == Token.Types.LeftParenthesis ||
@@ -252,7 +238,7 @@ namespace Interpreter
                 AddError ("error");
             }
         }
-            
+
         private void ExprMult ()
         {
             if ((Token.Types)currentToken.Type == Token.Types.Multiplication ||
@@ -261,20 +247,20 @@ namespace Interpreter
                 ExprE ();
                 ExprMult ();
             } else if ((Token.Types)currentToken.Type == Token.Types.Addition ||
-                (Token.Types)currentToken.Type == Token.Types.Subtraction ||
-                (Token.Types)currentToken.Type == Token.Types.Equal ||
-                (Token.Types)currentToken.Type == Token.Types.Less ||
-                (Token.Types)currentToken.Type == Token.Types.And ||
-                (Token.Types)currentToken.Type == Token.Types.RightParenthesis ||
-                (Token.Types)currentToken.Type == Token.Types.Range ||
-                (Token.Types)currentToken.Type == Token.Types.Do ||
-                (Token.Types)currentToken.Type == Token.Types.Semicolon) {
+                       (Token.Types)currentToken.Type == Token.Types.Subtraction ||
+                       (Token.Types)currentToken.Type == Token.Types.Equal ||
+                       (Token.Types)currentToken.Type == Token.Types.Less ||
+                       (Token.Types)currentToken.Type == Token.Types.And ||
+                       (Token.Types)currentToken.Type == Token.Types.RightParenthesis ||
+                       (Token.Types)currentToken.Type == Token.Types.Range ||
+                       (Token.Types)currentToken.Type == Token.Types.Do ||
+                       (Token.Types)currentToken.Type == Token.Types.Semicolon) {
                 return;
             } else {
                 AddError ("error");
             }
         }
-            
+
         private void ExprE ()
         {
             if ((Token.Types)currentToken.Type == Token.Types.LeftParenthesis) {
@@ -282,9 +268,9 @@ namespace Interpreter
                 Expr ();
                 Match (Token.Types.RightParenthesis);
             } else if ((Token.Types)currentToken.Type == Token.Types.IntLiteral ||
-                (Token.Types)currentToken.Type == Token.Types.StringLiteral ||
-                (Token.Types)currentToken.Type == Token.Types.Identifier ||
-                (Token.Types)currentToken.Type == Token.Types.BoolLiteral) {
+                       (Token.Types)currentToken.Type == Token.Types.StringLiteral ||
+                       (Token.Types)currentToken.Type == Token.Types.Identifier ||
+                       (Token.Types)currentToken.Type == Token.Types.BoolLiteral) {
                 Opnd ();
             }
         }
@@ -352,38 +338,38 @@ namespace Interpreter
             }
         }
 
-        private void Type ()
+        private Type Type ()
         {
+            Token token;
             switch ((Token.Types)currentToken.Type) {
                 case Token.Types.Int:
-                    {
-                        Match (Token.Types.Int);
-                        return;
-                    }
+                    token = Match (Token.Types.Int);
+                    return new IntType (token.Row);
                 case Token.Types.String:
-                    {
-                        Match (Token.Types.String);
-                        return;
-                    }
+                    token = Match (Token.Types.String);
+                    return new StringType (token.Row);
                 case Token.Types.Bool:
-                    {
-                        Match (Token.Types.Bool);
-                        return;
-                    }
+                    token = Match (Token.Types.Bool);
+                    return new BoolType (token.Row);
                 default:
-                    {
-                        AddError ("Invalid type: " + currentToken.Type);
-                        return;
-                    }
+                    throw new SyntaxError ("Syntax error: invalid type " + currentToken.Lexeme + " on row " + currentToken.Row +
+                    "and column " + currentToken.Column);
             }
         }
 
-        private void Match(Token.Types type) {
+        private Token Match (Token.Types type)
+        {
             System.Console.WriteLine (type);
             if ((Token.Types)currentToken.Type == type) {
+                Token current = currentToken;
                 ReadNextToken ();
+                return current;
+            } else if ((Token.Types)currentToken.Type == Token.Types.ERROR) {
+                throw new LexicalError ("Lexical Error: malformed token \"" + currentToken.Lexeme + "\" on row " + currentToken.Row +
+                "and column " + currentToken.Column);
             } else {
-                throw new Exception ("Syntax error: ");
+                throw new SyntaxError ("Syntax Error: unsupported token " + currentToken.Type + " on row " + currentToken.Row +
+                "and column " + currentToken.Column + ", expected: " + type);
             }
         }
 
@@ -413,8 +399,7 @@ namespace Interpreter
                     (Token.Types)currentToken.Type == Token.Types.Print ||
                     (Token.Types)currentToken.Type == Token.Types.Assert ||
                     (Token.Types)currentToken.Type == Token.Types.End ||
-                    (Token.Types)currentToken.Type == Token.Types.EOS) 
-                {
+                    (Token.Types)currentToken.Type == Token.Types.EOS) {
                     break;
                 }
             }

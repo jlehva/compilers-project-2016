@@ -47,6 +47,12 @@
     <Compile Include="src\errors\LexicalError.cs" />
     <Compile Include="src\errors\SyntaxError.cs" />
     <Compile Include="src\errors\SemanticError.cs" />
+    <Compile Include="src\Ast\type\StringType.cs" />
+    <Compile Include="src\Ast\type\BoolType.cs" />
+    <Compile Include="src\Ast\type\IntType.cs" />
+    <Compile Include="src\Ast\type\Type.cs" />
+    <Compile Include="src\Ast\stmt\AssignmentStmt.cs" />
+    <Compile Include="src\Ast\expr\Expression.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

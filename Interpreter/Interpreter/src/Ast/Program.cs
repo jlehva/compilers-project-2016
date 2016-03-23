@@ -6,11 +6,11 @@ namespace Interpreter
     {
         private Stmts _statements;
 
-        public Program ()
+        public Program (int row) : base (row)
         {
         }
 
-        public Program (Stmts statements) {
+        public Program (Stmts statements, int row) : base (row) {
             _statements = statements;
         }
 

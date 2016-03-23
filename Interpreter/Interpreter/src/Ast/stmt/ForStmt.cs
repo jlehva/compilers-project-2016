@@ -4,7 +4,7 @@ namespace Interpreter
 {
     public class IfStmt : Statement
     {
-        public IfStmt ()
+        public IfStmt (int row) : base(row)
         {
         }
     }
