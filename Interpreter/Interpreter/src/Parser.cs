@@ -14,11 +14,12 @@ namespace Interpreter
             this.scanner = scanner;
         }
 
-        public void Parse ()
+        public Program Parse ()
         {
             ReadNextToken ();
-            Prog ();
+            Program program = Prog ();
             PrintErrors ();
+            return program;
         }
 
         public List<Exception> GetErrors ()
@@ -26,34 +27,7 @@ namespace Interpreter
             return errors;
         }
 
-        private void Prog ()
-        {
-            switch ((Token.Types)currentToken.Type) {
-                case Token.Types.Var:
-                    Stmts ();
-                    return;
-                case Token.Types.Identifier:
-                    Stmts ();
-                    return;
-                case Token.Types.For:
-                    Stmts ();
-                    return;
-                case Token.Types.Read:
-                    Stmts ();
-                    return;
-                case Token.Types.Print:
-                    Stmts ();
-                    return;
-                case Token.Types.Assert:
-                    Stmts ();
-                    return;
-                default:
-                    AddError ("Invalid start symbol: " + currentToken.Type);
-                    return;
-            }
-        }
-
-        private void Stmts ()
+        private Program Prog ()
         {
             if ((Token.Types)currentToken.Type == Token.Types.Var ||
                 (Token.Types)currentToken.Type == Token.Types.Identifier ||
@@ -61,22 +35,42 @@ namespace Interpreter
                 (Token.Types)currentToken.Type == Token.Types.Read ||
                 (Token.Types)currentToken.Type == Token.Types.Print ||
                 (Token.Types)currentToken.Type == Token.Types.Assert) {
-                Stmt ();
-                Match (Token.Types.Semicolon);
-                Stmts ();
-            } else if ((Token.Types)currentToken.Type == Token.Types.End ||
-                (Token.Types)currentToken.Type == Token.Types.EOS) {
-                // end of for or EOS
+                return new Program(Stmts ());
             } else {
-                AddError ("Invalid symbol: " + currentToken.Type);
+                AddError ("Invalid start symbol: " + currentToken.Type);
+                return new Program ();
             }
         }
 
-        private void Stmt ()
+        private Stmts Stmts ()
+        {
+            if ((Token.Types)currentToken.Type == Token.Types.Var ||
+                (Token.Types)currentToken.Type == Token.Types.Identifier ||
+                (Token.Types)currentToken.Type == Token.Types.For ||
+                (Token.Types)currentToken.Type == Token.Types.Read ||
+                (Token.Types)currentToken.Type == Token.Types.Print ||
+                (Token.Types)currentToken.Type == Token.Types.Assert) 
+            {
+                Statement left = Stmt ();
+                Match (Token.Types.Semicolon);
+                Stmts right = Stmts ();
+                return new Stmts (left, right);
+            } else if ((Token.Types)currentToken.Type == Token.Types.End ||
+                (Token.Types)currentToken.Type == Token.Types.EOS) {
+                return new Stmts (); // end of statements
+            } else {
+                AddError ("Invalid statement: " + currentToken.Type);
+                SkipToNextStatement ();
+                return Stmts ();
+            }
+        }
+
+        private Statement Stmt ()
         {
             switch ((Token.Types)currentToken.Type) {
                 case Token.Types.Var:
                     {
+                        // VarDeclStmt
                         Match (Token.Types.Var);
                         Match (Token.Types.Identifier);
                         Match (Token.Types.Colon);
@@ -389,7 +383,7 @@ namespace Interpreter
             if ((Token.Types)currentToken.Type == type) {
                 ReadNextToken ();
             } else {
-                AddError ("error");
+                throw new Exception ("Syntax error: ");
             }
         }
 
@@ -406,6 +400,24 @@ namespace Interpreter
         private void AddError (string error)
         {
             errors.Add (new Exception (error));
+        }
+
+        private void SkipToNextStatement ()
+        {
+            while (true) {
+                ReadNextToken ();
+                if ((Token.Types)currentToken.Type == Token.Types.Var ||
+                    (Token.Types)currentToken.Type == Token.Types.Identifier ||
+                    (Token.Types)currentToken.Type == Token.Types.For ||
+                    (Token.Types)currentToken.Type == Token.Types.Read ||
+                    (Token.Types)currentToken.Type == Token.Types.Print ||
+                    (Token.Types)currentToken.Type == Token.Types.Assert ||
+                    (Token.Types)currentToken.Type == Token.Types.End ||
+                    (Token.Types)currentToken.Type == Token.Types.EOS) 
+                {
+                    break;
+                }
+            }
         }
     }
 }

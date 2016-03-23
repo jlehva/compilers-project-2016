@@ -2,7 +2,7 @@
 
 namespace Interpreter
 {
-    public class Statement
+    public class Statement : Node
     {
         public Statement ()
         {

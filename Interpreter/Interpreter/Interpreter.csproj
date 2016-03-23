@@ -38,9 +38,23 @@
     <Compile Include="src\Scanner.cs" />
     <Compile Include="Interpreter.cs" />
     <Compile Include="src\Token.cs" />
+    <Compile Include="src\Ast\Program.cs" />
+    <Compile Include="src\Ast\Node.cs" />
+    <Compile Include="src\Ast\stmt\ForStmt.cs" />
+    <Compile Include="src\Ast\stmt\VarDeclStmt.cs" />
+    <Compile Include="src\Ast\stmt\Statement.cs" />
+    <Compile Include="src\Ast\stmt\Stmts.cs" />
+    <Compile Include="src\errors\LexicalError.cs" />
+    <Compile Include="src\errors\SyntaxError.cs" />
+    <Compile Include="src\errors\SemanticError.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="src\" />
+    <Folder Include="src\Ast\" />
+    <Folder Include="src\Ast\stmt\" />
+    <Folder Include="src\Ast\expr\" />
+    <Folder Include="src\Ast\type\" />
+    <Folder Include="src\errors\" />
   </ItemGroup>
 </Project>

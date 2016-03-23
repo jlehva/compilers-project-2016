@@ -2,7 +2,7 @@
 
 namespace Interpreter
 {
-    public class VarDecl
+    public class VarDecl : Statement
     {
         public VarDecl ()
         {

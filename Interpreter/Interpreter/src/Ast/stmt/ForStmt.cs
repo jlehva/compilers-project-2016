@@ -2,7 +2,7 @@
 
 namespace Interpreter
 {
-    public class IfStmt
+    public class IfStmt : Statement
     {
         public IfStmt ()
         {
