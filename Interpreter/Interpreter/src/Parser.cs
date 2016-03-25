@@ -136,7 +136,7 @@ namespace Interpreter
                 if (right == null) {
                     return left;
                 } else {
-                    return new 
+                    return null;
                 }
             } else if ((Token.Types)currentToken.Type == Token.Types.Not) {
                 Token not = Match (Token.Types.Not);
@@ -153,6 +153,7 @@ namespace Interpreter
                 LogicalOp ();
                 Conjuct ();
                 ExprLogical ();
+                return null;
             } else if ((Token.Types)currentToken.Type == Token.Types.RightParenthesis ||
                        (Token.Types)currentToken.Type == Token.Types.Range ||
                        (Token.Types)currentToken.Type == Token.Types.Do ||
@@ -164,7 +165,7 @@ namespace Interpreter
             }
         }
 
-        private void Conjuct ()
+        private Expression Conjuct ()
         {
             if ((Token.Types)currentToken.Type == Token.Types.LeftParenthesis ||
                 (Token.Types)currentToken.Type == Token.Types.IntLiteral ||
@@ -173,8 +174,10 @@ namespace Interpreter
                 (Token.Types)currentToken.Type == Token.Types.BoolLiteral) {
                 ExprC ();
                 ExprRelational ();
+                return null;
             } else {
-                AddError ("error");
+                throw new SyntaxError ("Syntax error: invalid type " + currentToken.Lexeme + " on row " + currentToken.Row +
+                    "and column " + currentToken.Column);
             }
         }
 
@@ -192,7 +195,8 @@ namespace Interpreter
                        (Token.Types)currentToken.Type == Token.Types.Semicolon) {
                 return;
             } else {
-                AddError ("error");
+                throw new SyntaxError ("Syntax error: invalid type " + currentToken.Lexeme + " on row " + currentToken.Row +
+                    "and column " + currentToken.Column);
             }
         }
 
@@ -206,7 +210,8 @@ namespace Interpreter
                 Term ();
                 ExprAdd ();
             } else {
-                AddError ("error");
+                throw new SyntaxError ("Syntax error: invalid type " + currentToken.Lexeme + " on row " + currentToken.Row +
+                    "and column " + currentToken.Column);
             }
         }
 
@@ -226,7 +231,8 @@ namespace Interpreter
                        (Token.Types)currentToken.Type == Token.Types.Semicolon) {
                 return;
             } else {
-                AddError ("error");
+                throw new SyntaxError ("Syntax error: invalid type " + currentToken.Lexeme + " on row " + currentToken.Row +
+                    "and column " + currentToken.Column);
             }
         }
 
@@ -241,7 +247,8 @@ namespace Interpreter
                 Factor ();
                 ExprMult ();
             } else {
-                AddError ("error");
+                throw new SyntaxError ("Syntax error: invalid type " + currentToken.Lexeme + " on row " + currentToken.Row +
+                    "and column " + currentToken.Column);
             }
         }
 
@@ -261,53 +268,62 @@ namespace Interpreter
                        (Token.Types)currentToken.Type == Token.Types.Range ||
                        (Token.Types)currentToken.Type == Token.Types.Do ||
                        (Token.Types)currentToken.Type == Token.Types.Semicolon) {
-                return;
+                // return null;
             } else {
-                AddError ("error");
+                throw new SyntaxError ("Syntax error: invalid type " + currentToken.Lexeme + " on row " + currentToken.Row +
+                    "and column " + currentToken.Column);
             }
         }
 
-        private void Factor ()
+        private Expression Factor ()
         {
             if ((Token.Types)currentToken.Type == Token.Types.LeftParenthesis) {
                 Match (Token.Types.LeftParenthesis);
-                Expr ();
+                Expression expr = Expr ();
                 Match (Token.Types.RightParenthesis);
+                return expr;
             } else if ((Token.Types)currentToken.Type == Token.Types.IntLiteral ||
                        (Token.Types)currentToken.Type == Token.Types.StringLiteral ||
                        (Token.Types)currentToken.Type == Token.Types.Identifier ||
                        (Token.Types)currentToken.Type == Token.Types.BoolLiteral) {
-                Value ();
+                return Value ();
+            } else {
+                throw new SyntaxError ("Syntax error: invalid type " + currentToken.Lexeme + " on row " + currentToken.Row +
+                    "and column " + currentToken.Column);
             }
         }
 
-        private void Value ()
+        private Expression Value ()
         {
             switch ((Token.Types)currentToken.Type) {
                 case Token.Types.IntLiteral:
                     {
+                        IntValueExpr expr = new IntValueExpr (currentToken.Lexeme, currentToken.Row);
                         Match (Token.Types.IntLiteral);
-                        return;
+                        return expr;
                     }
                 case Token.Types.StringLiteral:
                     {
+                        StringValueExpr expr = new StringValueExpr (currentToken.Lexeme, currentToken.Row);
                         Match (Token.Types.StringLiteral);
-                        return;
+                        return expr;
                     }
                 case Token.Types.BoolLiteral:
                     {
+                        BoolValueExpr expr = new BoolValueExpr (currentToken.Lexeme, currentToken.Row);
                         Match (Token.Types.BoolLiteral);
-                        return;
+                        return expr;
                     }
                 case Token.Types.Identifier:
                     {
+                        IdentifierValueExpr expr = new IdentifierValueExpr (currentToken.Lexeme, currentToken.Row);
                         Match (Token.Types.Identifier);
-                        return;
+                        return expr;
                     }
                 default:
                     {
-                        AddError ("Invalid operand: " + currentToken.Type);
-                        return;
+                        throw new SyntaxError ("Syntax error: invalid type " + currentToken.Lexeme + " on row " + currentToken.Row +
+                            "and column " + currentToken.Column);
                     }
             }
         }
