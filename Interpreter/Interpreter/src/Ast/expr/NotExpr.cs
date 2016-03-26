@@ -4,7 +4,7 @@ namespace Interpreter
 {
     public class NotExpr : Expression
     {
-        public NotExpr (int row) : base(row)
+        public NotExpr (Expression left, Expression right, int row) : base(left, right, row)
         {
         }
     }

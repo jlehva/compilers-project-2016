@@ -54,11 +54,13 @@
     <Compile Include="src\Ast\stmt\AssignmentStmt.cs" />
     <Compile Include="src\Ast\expr\Expression.cs" />
     <Compile Include="src\Ast\expr\NotExpr.cs" />
-    <Compile Include="src\Ast\expr\UnaryExpr.cs" />
     <Compile Include="src\Ast\expr\IntValueExpr.cs" />
     <Compile Include="src\Ast\expr\StringValueExpr.cs" />
     <Compile Include="src\Ast\expr\BoolValueExpr.cs" />
     <Compile Include="src\Ast\expr\IdentifierValueExpr.cs" />
+    <Compile Include="src\Ast\expr\LogicalExpr.cs" />
+    <Compile Include="src\Ast\expr\RelationalExpr.cs" />
+    <Compile Include="src\Ast\expr\ArtihmeticExpr.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
