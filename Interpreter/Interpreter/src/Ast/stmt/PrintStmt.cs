@@ -4,11 +4,8 @@ namespace Interpreter
 {
     public class PrintStmt : Statement
     {
-        public Expression PrintExpression { get; private set; }
-
-        public PrintStmt (Expression printExpression, int row) : base (row)
+        public PrintStmt (string name, int row) : base (name, row)
         {
-            PrintExpression = printExpression;
         }
     }
 }

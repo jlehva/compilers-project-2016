@@ -4,7 +4,7 @@ namespace Interpreter
 {
     public class Type : Node
     {
-        public Type (int row) : base (row)
+        public Type (string name, int row) : base (name, row)
         {
         }
     }

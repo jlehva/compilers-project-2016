@@ -4,11 +4,8 @@ namespace Interpreter
 {
     public class ReadStmt : Statement
     {
-        public string Identifier { get; private set; }
-
-        public ReadStmt (string identifier, int row) : base (row)
+        public ReadStmt (string name, int row) : base (name, row)
         {
-            Identifier = identifier;
         }
     }
 }

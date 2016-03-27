@@ -34,7 +34,9 @@ namespace Interpreter
                 (Token.Types)currentToken.Type == Token.Types.Read ||
                 (Token.Types)currentToken.Type == Token.Types.Print ||
                 (Token.Types)currentToken.Type == Token.Types.Assert) {
-                return new Program (Stmts (), currentToken.Row);
+                Program program = new Program ("program", currentToken.Row);
+                program.AddChild (Stmts ());
+                return program;
             }
 
             throw new SyntaxError ("Syntax error: invalid start symbol of a program " + currentToken.Type + 
@@ -43,6 +45,8 @@ namespace Interpreter
 
         private Stmts Stmts ()
         {
+            Stmts statements = new Stmts ("stmts", currentToken.Row);
+
             if ((Token.Types)currentToken.Type == Token.Types.Var ||
                 (Token.Types)currentToken.Type == Token.Types.Identifier ||
                 (Token.Types)currentToken.Type == Token.Types.For ||
@@ -50,10 +54,10 @@ namespace Interpreter
                 (Token.Types)currentToken.Type == Token.Types.Print ||
                 (Token.Types)currentToken.Type == Token.Types.Assert) {
                 try {
-                    Statement left = Stmt ();
+                    statements.AddChild (Stmt());
                     Match (Token.Types.Semicolon);
-                    Stmts right = Stmts ();
-                    return new Stmts (left, right, currentToken.Row);
+                    statements.AddChild (Stmts ());
+                    return statements;
                 } catch (Exception e) {
                     errors.Add (e);
                     SkipToNextStatement ();
@@ -61,7 +65,7 @@ namespace Interpreter
                 }
             } else if ((Token.Types)currentToken.Type == Token.Types.End ||
                        (Token.Types)currentToken.Type == Token.Types.EOS) {
-                return null;
+                return statements;
             } 
 
             throw new SyntaxError ("Syntax error: invalid start symbol for statement " + currentToken.Lexeme + 
@@ -70,66 +74,72 @@ namespace Interpreter
 
         private Statement Stmt ()
         {
-            Token id;
-            Token t;
-
             switch ((Token.Types)currentToken.Type) {
-                case Token.Types.Var: 
-                    t = Match (Token.Types.Var);
-                    id = Match (Token.Types.Identifier);
+                case Token.Types.Var:
+                    VarDeclStmt varDeclStmt = new VarDeclStmt ("VarDecl", currentToken.Row);
+                    Match (Token.Types.Var);
+                    varDeclStmt.AddChild (IdentifierNameStmt ());
                     Match (Token.Types.Colon);
-                    Type type = Type ();
-                    VarDeclStmt varDeclaration = new VarDeclStmt (type, id.Lexeme, t.Row);
-                    return Assign (varDeclaration); // returns AssignmentStmt or VarDeclStmt
+                    varDeclStmt.AddChild (Type ());
+
+                    if ((Token.Types)currentToken.Type == Token.Types.Assign) {
+                        Match (Token.Types.Assign);
+                        varDeclStmt.AddChild (Expr ());
+                        return varDeclStmt;
+                    } else if ((Token.Types)currentToken.Type == Token.Types.Semicolon) {
+                        return varDeclStmt;
+                    }
+
+                    throw new SyntaxError ("Expected Assign, got something else: " + currentToken.Type);
                 case Token.Types.Identifier:
-                    id = Match (Token.Types.Identifier);
-                    VarStmt varStmt = new VarStmt (id.Lexeme, id.Row);
+                    AssignmentStmt assignmentStmt = new AssignmentStmt ("AssignmentStmt", currentToken.Row);
+                    assignmentStmt.AddChild (IdentifierNameStmt ());
                     Match (Token.Types.Assign);
-                    return new AssignmentStmt (varStmt, Expr (), id.Row);
+                    assignmentStmt.AddChild (Expr ());
+                    return assignmentStmt;
                 case Token.Types.For:
-                    t = Match (Token.Types.For);
-                    id = Match (Token.Types.Identifier);
+                    ForStmt forStmt = new ForStmt ("ForStmt", currentToken.Row);
+                    Match (Token.Types.For);
+                    forStmt.AddChild (IdentifierNameStmt ());
                     Match (Token.Types.In);
-                    Expression start = Expr ();
+                    forStmt.AddChild (Expr ());
                     Match (Token.Types.Range);
-                    Expression end = Expr ();
+                    forStmt.AddChild (Expr ());
                     Match (Token.Types.Do);
-                    Stmts doStatements = Stmts ();
+                    forStmt.AddChild (Stmts ());
                     Match (Token.Types.End);
                     Match (Token.Types.For);
-                    return new ForStmt (start, end, doStatements, t.Row);
+                    return forStmt;
                 case Token.Types.Read:
-                    t = Match (Token.Types.Read);
-                    id = Match (Token.Types.Identifier);
-                    return new ReadStmt (id.Lexeme, t.Row); 
+                    ReadStmt readStmt = new ReadStmt ("ReadStmt", currentToken.Row);
+                    Match (Token.Types.Read);
+                    readStmt.AddChild (IdentifierNameStmt ());
+                    return readStmt;
                 case Token.Types.Print:
-                    t = Match (Token.Types.Print);
-                    Expression printExpr = Expr ();
-                    return new PrintStmt (printExpr, t.Row);
+                    PrintStmt printStmt = new PrintStmt ("PrintStmt", currentToken.Row);
+                    Match (Token.Types.Print);
+                    printStmt.AddChild (Expr ());
+                    return printStmt;
                 case Token.Types.Assert:
-                    t = Match (Token.Types.Assert);
+                    AssertStmt assertStmt = new AssertStmt ("AssertStmt", currentToken.Row);
+                    Match (Token.Types.Assert);
                     Match (Token.Types.LeftParenthesis);
-                    Expression assertExpr = Expr ();
+                    assertStmt.AddChild (Expr ());
                     Match (Token.Types.RightParenthesis);
-                    return new AssertStmt (assertExpr, t.Row);
+                    return assertStmt;
                 default:
                     throw new SyntaxError ("Syntax error: invalid start symbol for statement " + currentToken.Lexeme + 
                         " on row " + currentToken.Row + "and column " + currentToken.Column);
             }
         }
 
-        private Statement Assign (VarDeclStmt varDeclStmt)
+        private IdentifierNameStmt IdentifierNameStmt () 
         {
-            if ((Token.Types)currentToken.Type == Token.Types.Assign) {
-                Token assign = Match (Token.Types.Assign);
-                return new AssignmentStmt (varDeclStmt, Expr (), assign.Row);
-            } else if ((Token.Types)currentToken.Type == Token.Types.Semicolon) {
-                return varDeclStmt;
-            }
-             
-            throw new SyntaxError ("Expected Assign, got something else: " + currentToken.Type);
+            Token token = Match (Token.Types.Identifier);
+            IdentifierNameStmt identifierNameStmt = new IdentifierNameStmt(token.Lexeme, token.Row);
+            return identifierNameStmt;
         }
-
+            
         private Expression Expr ()
         {
             Token t = currentToken;
@@ -381,13 +391,13 @@ namespace Interpreter
             switch ((Token.Types)currentToken.Type) {
                 case Token.Types.Int:
                     token = Match (Token.Types.Int);
-                    return new IntType (token.Row);
+                    return new IntType ("Int", token.Row);
                 case Token.Types.String:
                     token = Match (Token.Types.String);
-                    return new StringType (token.Row);
+                    return new StringType ("String", token.Row);
                 case Token.Types.Bool:
                     token = Match (Token.Types.Bool);
-                    return new BoolType (token.Row);
+                    return new BoolType ("Bool", token.Row);
                 default:
                     throw new SyntaxError ("Syntax error: invalid type " + currentToken.Lexeme + " on row " + currentToken.Row +
                     "and column " + currentToken.Column);

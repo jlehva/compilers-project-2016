@@ -4,11 +4,8 @@ namespace Interpreter
 {
     public class RelationalExpr : Expression
     {
-        public string Lexeme { get; private set; }
-
-        public RelationalExpr (Expression left, Expression right, int row, string lexeme) : base(left, right, row)
+        public RelationalExpr (string name, int row) : base (name, row)
         {
-            Lexeme = lexeme;
         }
     }
 }

@@ -4,11 +4,8 @@ namespace Interpreter
 {
     public class BoolValueExpr : Expression
     {
-        private string _left;
-
-        public BoolValueExpr (string left, int row) : base (row)
+        public BoolValueExpr (string name, int row) : base (name, row)
         {
-            _left = left;
         }
     }
 }

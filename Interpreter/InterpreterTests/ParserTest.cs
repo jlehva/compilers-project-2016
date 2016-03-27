@@ -76,6 +76,7 @@ namespace InterpreterTests
             Assert.AreEqual (stmt.Name, expected.Name);
             Assert.AreEqual (stmt.Type.ToString (), expected.Type.ToString ());
             Assert.AreEqual (stmt.Row, expected.Row);
+            VarDeclStmt varDeclStmt = 
             Assert.AreEqual (prog.Statements.Right.Left, null);
             Assert.AreEqual (prog.Statements.Right.Right, null);
         }

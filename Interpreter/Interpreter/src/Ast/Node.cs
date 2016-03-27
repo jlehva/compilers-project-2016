@@ -1,19 +1,23 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Interpreter
 {
     public abstract class Node
     {
-        private int _row;
+        public int Row { get; private set; }
+        public string Name { get; private set; } // mainly used for printing the tree
+        public List<Node> Children { get; private set; }
 
-        public Node (int row)
+        public Node (string name, int row)
         {
-            _row = row;
+            Name = name;
+            Row = row;
+            Children = new List<Node>();
         }
 
-        public int Row {
-            get { return _row; }
-            set { _row = value; }
+        public void AddChild(Node child) {
+            Children.Add (child);
         }
     }
 }

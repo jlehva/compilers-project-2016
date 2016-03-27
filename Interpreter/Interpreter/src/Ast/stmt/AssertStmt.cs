@@ -4,11 +4,8 @@ namespace Interpreter
 {
     public class AssertStmt : Statement
     {
-        public Expression AssertExpression { get; private set; }
-
-        public AssertStmt (Expression assertExpr, int row) : base (row)
+        public AssertStmt (string name, int row) : base (name, row)
         {
-            AssertExpression = assertExpr;
         }
     }
 }
