@@ -18,7 +18,6 @@ namespace Interpreter
         {
             ReadNextToken ();
             Program program = Prog ();
-            // PrintErrors ();
             return program;
         }
 
@@ -36,10 +35,10 @@ namespace Interpreter
                 (Token.Types)currentToken.Type == Token.Types.Print ||
                 (Token.Types)currentToken.Type == Token.Types.Assert) {
                 return new Program (Stmts (), currentToken.Row);
-            } else {
-                // AddError ("Invalid start symbol: " + currentToken.Lexeme);
-                return new Program (currentToken.Row);
             }
+
+            throw new SyntaxError ("Syntax error: invalid start symbol of a program " + currentToken.Type + 
+            " on row " + currentToken.Row + "and column " + currentToken.Column);
         }
 
         private Stmts Stmts ()
@@ -50,64 +49,72 @@ namespace Interpreter
                 (Token.Types)currentToken.Type == Token.Types.Read ||
                 (Token.Types)currentToken.Type == Token.Types.Print ||
                 (Token.Types)currentToken.Type == Token.Types.Assert) {
-                Statement left = Stmt ();
-                Match (Token.Types.Semicolon);
-                Stmts right = Stmts ();
-                return new Stmts (left, right, currentToken.Row);
+                try {
+                    Statement left = Stmt ();
+                    Match (Token.Types.Semicolon);
+                    Stmts right = Stmts ();
+                    return new Stmts (left, right, currentToken.Row);
+                } catch (Exception e) {
+                    errors.Add (e);
+                    SkipToNextStatement ();
+                    return Stmts ();
+                }
             } else if ((Token.Types)currentToken.Type == Token.Types.End ||
                        (Token.Types)currentToken.Type == Token.Types.EOS) {
-                return new Stmts (currentToken.Row); // end of statements
-            } else {
-                // AddError ("Invalid statement: " + currentToken.Type);
-                SkipToNextStatement ();
-                return Stmts ();
-            }
+                return null;
+            } 
+
+            throw new SyntaxError ("Syntax error: invalid start symbol for statement " + currentToken.Lexeme + 
+            " on row " + currentToken.Row + "and column " + currentToken.Column);
         }
 
         private Statement Stmt ()
         {
+            Token id;
+            Token t;
+
             switch ((Token.Types)currentToken.Type) {
-                case Token.Types.Var:
-                    // VarDeclStmt
-                    Match (Token.Types.Var);
-                    Token variable = Match (Token.Types.Identifier);
+                case Token.Types.Var: 
+                    t = Match (Token.Types.Var);
+                    id = Match (Token.Types.Identifier);
                     Match (Token.Types.Colon);
                     Type type = Type ();
-                    VarDeclStmt varDeclaration = new VarDeclStmt (type, variable.Lexeme, variable.Row);
-                    return Assign (varDeclaration);
+                    VarDeclStmt varDeclaration = new VarDeclStmt (type, id.Lexeme, t.Row);
+                    return Assign (varDeclaration); // returns AssignmentStmt or VarDeclStmt
                 case Token.Types.Identifier:
-                    Match (Token.Types.Identifier);
+                    id = Match (Token.Types.Identifier);
+                    VarStmt varStmt = new VarStmt (id.Lexeme, id.Row);
                     Match (Token.Types.Assign);
-                    Expr ();
-                    return new Statement (currentToken.Row); // TODO  
+                    return new AssignmentStmt (varStmt, Expr (), id.Row);
                 case Token.Types.For:
-                    Match (Token.Types.For);
-                    Match (Token.Types.Identifier);
+                    t = Match (Token.Types.For);
+                    id = Match (Token.Types.Identifier);
                     Match (Token.Types.In);
-                    Expr ();
+                    Expression start = Expr ();
                     Match (Token.Types.Range);
-                    Expr ();
+                    Expression end = Expr ();
                     Match (Token.Types.Do);
-                    Stmts ();
+                    Stmts doStatements = Stmts ();
                     Match (Token.Types.End);
                     Match (Token.Types.For);
-                    return new Statement (currentToken.Row); // TODO
+                    return new ForStmt (start, end, doStatements, t.Row);
                 case Token.Types.Read:
-                    Match (Token.Types.Read);
-                    Match (Token.Types.Identifier);
-                    return new Statement (currentToken.Row); // TODO  
+                    t = Match (Token.Types.Read);
+                    id = Match (Token.Types.Identifier);
+                    return new ReadStmt (id.Lexeme, t.Row); 
                 case Token.Types.Print:
-                    Match (Token.Types.Print);
-                    Expr ();
-                    return new Statement (currentToken.Row); // TODO
+                    t = Match (Token.Types.Print);
+                    Expression printExpr = Expr ();
+                    return new PrintStmt (printExpr, t.Row);
                 case Token.Types.Assert:
-                    Match (Token.Types.Assert);
+                    t = Match (Token.Types.Assert);
                     Match (Token.Types.LeftParenthesis);
-                    Expr ();
+                    Expression assertExpr = Expr ();
                     Match (Token.Types.RightParenthesis);
-                    return new Statement (currentToken.Row); // TODO   
+                    return new AssertStmt (assertExpr, t.Row);
                 default:
-                    throw new SyntaxError ("temp message");
+                    throw new SyntaxError ("Syntax error: invalid start symbol for statement " + currentToken.Lexeme + 
+                        " on row " + currentToken.Row + "and column " + currentToken.Column);
             }
         }
 
@@ -121,7 +128,6 @@ namespace Interpreter
             }
              
             throw new SyntaxError ("Expected Assign, got something else: " + currentToken.Type);
-
         }
 
         private Expression Expr ()

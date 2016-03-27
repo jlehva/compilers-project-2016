@@ -61,6 +61,10 @@
     <Compile Include="src\Ast\expr\LogicalExpr.cs" />
     <Compile Include="src\Ast\expr\RelationalExpr.cs" />
     <Compile Include="src\Ast\expr\ArtihmeticExpr.cs" />
+    <Compile Include="src\Ast\stmt\VarStmt.cs" />
+    <Compile Include="src\Ast\stmt\ReadStmt.cs" />
+    <Compile Include="src\Ast\stmt\PrintStmt.cs" />
+    <Compile Include="src\Ast\stmt\AssertStmt.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

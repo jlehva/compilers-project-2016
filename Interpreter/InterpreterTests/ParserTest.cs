@@ -11,8 +11,15 @@ namespace InterpreterTests
         [Test ()]
         public void TestIncorrectStartSymbol () {
             Parser parser = new Parser (new Scanner ("="));
-            parser.Parse ();
-            Assert.AreEqual (1, parser.GetErrors ().Count);
+            try {
+                parser.Parse ();
+                Assert.Fail();
+            } catch (SyntaxError error) {
+                // this is what we want
+                Assert.Pass (error.Message);
+            } catch (Exception e) {
+                Assert.Fail ("Wrong exception " + e.Message);
+            }
         }
 
         [Test ()]
@@ -79,7 +86,7 @@ namespace InterpreterTests
             Parser parser = new Parser (new Scanner (app));
             Program prog = parser.Parse ();
             VarDeclStmt stmt = (VarDeclStmt)prog.Statements.Left;
-            VarDeclStmt varDeclStmt = new VarDeclStmt (new IntType (1), "v", 1);
+            // VarDeclStmt varDeclStmt = new VarDeclStmt (new IntType (1), "v", 1);
             // AssignmentStmt assignmentStmt = new AssignmentStmt (varDeclStmt, );
             // Assert.AreEqual (stmt.Name, expected.Name);
             //Assert.AreEqual (stmt.Type.ToString (), expected.Type.ToString ());
@@ -91,13 +98,9 @@ namespace InterpreterTests
             string app = "print \"test\";";
             Parser parser = new Parser (new Scanner (app));
             Program prog = parser.Parse ();
-
-            VarDeclStmt stmt = (VarDeclStmt)prog.Statements.Left;
-            VarDeclStmt varDeclStmt = new VarDeclStmt (new IntType (1), "v", 1);
-            // AssignmentStmt assignmentStmt = new AssignmentStmt (varDeclStmt, );
-            // Assert.AreEqual (stmt.Name, expected.Name);
-            //Assert.AreEqual (stmt.Type.ToString (), expected.Type.ToString ());
-            //Assert.AreEqual (stmt.Row, expected.Row);
+            Assert.NotNull (prog.Statements.Left); // Statement
+            Assert.IsNull (prog.Statements.Right); // Statements / tail
+            // Assert.AreEqual (prog.Statements.Left.Left);
         }
     }
 }

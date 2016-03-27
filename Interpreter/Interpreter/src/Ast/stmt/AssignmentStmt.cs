@@ -4,12 +4,12 @@ namespace Interpreter
 {
     public class AssignmentStmt : Statement
     {
-        private Statement _left;
+        private Statement _left; // VarDeclStmt or VarStmt
         private Expression _right;
 
-        public AssignmentStmt (Statement varDeclStmt, Expression expr, int row) :base (row)
+        public AssignmentStmt (Statement identifier, Expression expr, int row) :base (row)
         {
-            _left = varDeclStmt;
+            _left = identifier;
             _right = expr;
         }
     }
