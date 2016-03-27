@@ -145,9 +145,16 @@ namespace Interpreter
                 (Token.Types)currentToken.Type == Token.Types.Identifier ||
                 (Token.Types)currentToken.Type == Token.Types.BoolLiteral) {
                 Expression expression = new Expression ("expr", currentToken.Row);
-                expression.AddChild (Conjuct ());
-                expression.AddChild (ExprLogical ());
-                return expression;
+
+                Expression left = Conjuct ();
+                Expression right = ExprLogical ();
+                if (right.Name != null) {
+                    expression.AddChild (left);
+                    expression.AddChild (right);
+                    return expression;
+                } else {
+                    return left;
+                }
             } else if ((Token.Types)currentToken.Type == Token.Types.Not) {
                 NotExpr notExpr = new NotExpr ("!", currentToken.Row);
                 Match (Token.Types.Not);
@@ -172,7 +179,7 @@ namespace Interpreter
                        (Token.Types)currentToken.Type == Token.Types.Range ||
                        (Token.Types)currentToken.Type == Token.Types.Do ||
                        (Token.Types)currentToken.Type == Token.Types.Semicolon) {
-                return new LogicalExpr("null", currentToken.Row); // TODO, return new logical expression instead?
+                return new LogicalExpr(null, currentToken.Row); // TODO, return new logical expression instead?
             }
                 
             throw new SyntaxError ("Syntax Error: invalid token to start expression " + currentToken.Type + " on row " +
@@ -187,9 +194,16 @@ namespace Interpreter
                 (Token.Types)currentToken.Type == Token.Types.Identifier ||
                 (Token.Types)currentToken.Type == Token.Types.BoolLiteral) {
                 Expression expression = new Expression ("expr", currentToken.Row);
-                expression.AddChild (ExprC ());
-                expression.AddChild (ExprRelational ());
-                return expression;
+
+                Expression left = ExprC ();
+                Expression right = ExprRelational ();
+                if (right.Name != null) {
+                    expression.AddChild (left);
+                    expression.AddChild (right);
+                    return expression;
+                } else {
+                    return left;
+                }
             }
                 
             throw new SyntaxError ("Syntax error: invalid type " + currentToken.Lexeme + " on row " + currentToken.Row +
@@ -219,7 +233,7 @@ namespace Interpreter
                        (Token.Types)currentToken.Type == Token.Types.Range ||
                        (Token.Types)currentToken.Type == Token.Types.Do ||
                        (Token.Types)currentToken.Type == Token.Types.Semicolon) {
-                return new RelationalExpr("null", currentToken.Row);
+                return new RelationalExpr(null, currentToken.Row);
             }
              
             throw new SyntaxError ("Syntax error: invalid type " + currentToken.Lexeme + " on row " + currentToken.Row +
@@ -234,9 +248,16 @@ namespace Interpreter
                 (Token.Types)currentToken.Type == Token.Types.Identifier ||
                 (Token.Types)currentToken.Type == Token.Types.BoolLiteral) {
                 Expression expression = new Expression ("expr", currentToken.Row);
-                expression.AddChild (Term ());
-                expression.AddChild (ExprAdd ());
-                return expression;
+
+                Expression left = Term ();
+                Expression right = ExprAdd ();
+                if (right.Name != null) {
+                    expression.AddChild (left);
+                    expression.AddChild (right);
+                    return expression;
+                } else {
+                    return left;
+                }
             }
 
             throw new SyntaxError ("Syntax error: invalid type " + currentToken.Lexeme + " on row " + currentToken.Row +
@@ -268,7 +289,7 @@ namespace Interpreter
                        (Token.Types)currentToken.Type == Token.Types.Range ||
                        (Token.Types)currentToken.Type == Token.Types.Do ||
                        (Token.Types)currentToken.Type == Token.Types.Semicolon) {
-                return new ArithmeticExpr("null", currentToken.Row);
+                return new ArithmeticExpr(null, currentToken.Row);
             }
 
             throw new SyntaxError ("Syntax error: invalid type " + currentToken.Lexeme + " on row " + currentToken.Row +
@@ -284,9 +305,16 @@ namespace Interpreter
                 (Token.Types)currentToken.Type == Token.Types.Identifier ||
                 (Token.Types)currentToken.Type == Token.Types.BoolLiteral) {
                 Expression expression = new Expression ("expr", currentToken.Row);
-                expression.AddChild (Factor ());
-                expression.AddChild (ExprMult ());
-                return expression;
+
+                Expression left = Factor ();
+                Expression right = ExprMult ();
+                if (right.Name != null) {
+                    expression.AddChild (left);
+                    expression.AddChild (right);
+                    return expression;
+                } else {
+                    return left;
+                }
             }
                 
             throw new SyntaxError ("Syntax error: invalid type " + currentToken.Lexeme + " on row " + currentToken.Row +
@@ -320,7 +348,7 @@ namespace Interpreter
                        (Token.Types)currentToken.Type == Token.Types.Range ||
                        (Token.Types)currentToken.Type == Token.Types.Do ||
                        (Token.Types)currentToken.Type == Token.Types.Semicolon) {
-                return new ArithmeticExpr("null", currentToken.Row);
+                return new ArithmeticExpr(null, currentToken.Row);
             }
 
             throw new SyntaxError ("Syntax error: invalid type " + currentToken.Lexeme + " on row " + currentToken.Row +
