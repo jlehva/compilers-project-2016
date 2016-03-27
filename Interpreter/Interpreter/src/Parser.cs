@@ -256,7 +256,7 @@ namespace Interpreter
 
                 Expression left = Term ();
                 Expression right = ExprAdd ();
-                return new ArtihmeticExpr (left, right, t.Row, t.Lexeme);
+                return new ArithmeticExpr (left, right, t.Row, t.Lexeme);
             } else if ((Token.Types)currentToken.Type == Token.Types.Equal ||
                        (Token.Types)currentToken.Type == Token.Types.Less ||
                        (Token.Types)currentToken.Type == Token.Types.And ||
@@ -305,7 +305,7 @@ namespace Interpreter
 
                 Expression left = Factor ();
                 Expression right = ExprMult ();
-                return new ArtihmeticExpr (left, right, t.Row, t.Lexeme);
+                return new ArithmeticExpr (left, right, t.Row, t.Lexeme);
             } else if ((Token.Types)currentToken.Type == Token.Types.Addition ||
                        (Token.Types)currentToken.Type == Token.Types.Subtraction ||
                        (Token.Types)currentToken.Type == Token.Types.Equal ||
