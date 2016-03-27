@@ -4,11 +4,8 @@ namespace Interpreter
 {
     public class VarStmt : Statement
     {
-        public string Identifier { get; private set; }
-
-        public VarStmt (string identifier, int row) : base (row)
+        public VarStmt (string name, int row) : base (name, row)
         {
-            Identifier = identifier;
         }
     }
 }

@@ -4,7 +4,7 @@ namespace Interpreter
 {
     public class IntType : Type
     {
-        public IntType (int row) : base(row)
+        public IntType (string name, int row) : base(name, row)
         {
         }
     }

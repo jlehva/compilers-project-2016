@@ -84,7 +84,7 @@ namespace Interpreter
             }
 
             if (isStringLiteral (currentChar)) {
-                return createStringLiteralToken ();
+                return createStringLiteralToken (currentChar);
             }
 
             if (isLetter (currentChar)) {
@@ -119,10 +119,8 @@ namespace Interpreter
             return currentChar;
         }
 
-        private Token createStringLiteralToken ()
+        private Token createStringLiteralToken (int currentChar)
         {
-            // consume the first "-character
-            int currentChar = readNextChar ();
             string lexeme = "";
 
             while (true) {
