@@ -437,6 +437,22 @@ namespace InterpreterTests
         }
 
         [Test ()]
+        public void TestStringLiteral() {
+            Scanner scanner = new Scanner ("\"how many times?\";\n");
+            Token token = scanner.GetNextToken ();
+            Assert.AreEqual ("how many times?", token.Lexeme);
+
+            scanner = new Scanner ("\"How many times?\";\n");
+            token = scanner.GetNextToken ();
+            Assert.AreEqual ("How many times?", token.Lexeme);
+
+            scanner = new Scanner ("print \"How many times?\";\n");
+            scanner.GetNextToken ();
+            token = scanner.GetNextToken ();
+            Assert.AreEqual ("How many times?", token.Lexeme);
+        }
+
+        [Test ()]
         public void TestStringLiteralCreationWithNoEnd() {
             string input = "\"foo=";
             Scanner scanner = new Scanner (input);

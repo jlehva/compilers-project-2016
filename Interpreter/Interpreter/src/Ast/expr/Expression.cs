@@ -4,7 +4,7 @@ namespace Interpreter
 {
     public class Expression : Node
     {
-        public Expression (int row) : base (row)
+        public Expression (string name, int row) : base (name, row)
         {
         }
     }

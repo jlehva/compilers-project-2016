@@ -2,9 +2,9 @@
 
 namespace Interpreter
 {
-    public class IfStmt : Statement
+    public class ForStmt : Statement
     {
-        public IfStmt (int row) : base(row)
+        public ForStmt (string name, int row) : base(name, row)
         {
         }
     }

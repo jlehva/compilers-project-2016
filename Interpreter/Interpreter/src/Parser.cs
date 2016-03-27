@@ -18,7 +18,6 @@ namespace Interpreter
         {
             ReadNextToken ();
             Program program = Prog ();
-            PrintErrors ();
             return program;
         }
 
@@ -35,94 +34,109 @@ namespace Interpreter
                 (Token.Types)currentToken.Type == Token.Types.Read ||
                 (Token.Types)currentToken.Type == Token.Types.Print ||
                 (Token.Types)currentToken.Type == Token.Types.Assert) {
-                return new Program (Stmts (), currentToken.Row);
-            } else {
-                AddError ("Invalid start symbol: " + currentToken.Lexeme);
-                return new Program (currentToken.Row);
+                Program program = new Program ("program", currentToken.Row);
+                program.AddChild (Stmts ());
+                return program;
             }
+
+            throw new SyntaxError ("Syntax error: invalid start symbol of a program " + currentToken.Type + 
+            " on row " + currentToken.Row + "and column " + currentToken.Column);
         }
 
         private Stmts Stmts ()
         {
+            System.Console.WriteLine (" = = = = = = = = = = NEW STATEMENT = = = = = ");
+            Stmts statements = new Stmts ("stmts", currentToken.Row);
+
             if ((Token.Types)currentToken.Type == Token.Types.Var ||
                 (Token.Types)currentToken.Type == Token.Types.Identifier ||
                 (Token.Types)currentToken.Type == Token.Types.For ||
                 (Token.Types)currentToken.Type == Token.Types.Read ||
                 (Token.Types)currentToken.Type == Token.Types.Print ||
                 (Token.Types)currentToken.Type == Token.Types.Assert) {
-                Statement left = Stmt ();
-                Match (Token.Types.Semicolon);
-                Stmts right = Stmts ();
-                return new Stmts (left, right, currentToken.Row);
+
+                    statements.AddChild (Stmt());
+                    Match (Token.Types.Semicolon);
+                    statements.AddChild (Stmts ());
+                    return statements;
+
             } else if ((Token.Types)currentToken.Type == Token.Types.End ||
                        (Token.Types)currentToken.Type == Token.Types.EOS) {
-                return new Stmts (currentToken.Row); // end of statements
-            } else {
-                AddError ("Invalid statement: " + currentToken.Type);
-                SkipToNextStatement ();
-                return Stmts ();
-            }
+                return statements;
+            } 
+
+            throw new SyntaxError ("Syntax error: invalid start symbol for statement " + currentToken.Lexeme + 
+            " on row " + currentToken.Row + "and column " + currentToken.Column);
         }
 
         private Statement Stmt ()
         {
             switch ((Token.Types)currentToken.Type) {
                 case Token.Types.Var:
-                    // VarDeclStmt
+                    VarDeclStmt varDeclStmt = new VarDeclStmt ("VarDecl", currentToken.Row);
                     Match (Token.Types.Var);
-                    Token variable = Match (Token.Types.Identifier);
+                    varDeclStmt.AddChild (IdentifierNameStmt ());
                     Match (Token.Types.Colon);
-                    Type type = Type ();
-                    VarDeclStmt varDeclaration = new VarDeclStmt (type, variable.Lexeme, variable.Row);
-                    return Assign (varDeclaration);
+                    varDeclStmt.AddChild (Type ());
+
+                    if ((Token.Types)currentToken.Type == Token.Types.Assign) {
+                        Match (Token.Types.Assign);
+                        varDeclStmt.AddChild (Expr ());
+                        return varDeclStmt;
+                    } else if ((Token.Types)currentToken.Type == Token.Types.Semicolon) {
+                        return varDeclStmt;
+                    }
+
+                    throw new SyntaxError ("Expected Assign, got something else: " + currentToken.Type);
                 case Token.Types.Identifier:
-                    Match (Token.Types.Identifier);
+                    AssignmentStmt assignmentStmt = new AssignmentStmt ("AssignmentStmt", currentToken.Row);
+                    assignmentStmt.AddChild (IdentifierNameStmt ());
                     Match (Token.Types.Assign);
-                    Expr ();
-                    return new Statement (currentToken.Row); // TODO  
+                    assignmentStmt.AddChild (Expr ());
+                    return assignmentStmt;
                 case Token.Types.For:
+                    ForStmt forStmt = new ForStmt ("ForStmt", currentToken.Row);
                     Match (Token.Types.For);
-                    Match (Token.Types.Identifier);
+                    forStmt.AddChild (IdentifierNameStmt ());
                     Match (Token.Types.In);
-                    Expr ();
+                    forStmt.AddChild (Expr ());
                     Match (Token.Types.Range);
-                    Expr ();
+                    forStmt.AddChild (Expr ());
                     Match (Token.Types.Do);
-                    Stmts ();
+                    forStmt.AddChild (Stmts ());
                     Match (Token.Types.End);
                     Match (Token.Types.For);
-                    return new Statement (currentToken.Row); // TODO
+                    return forStmt;
                 case Token.Types.Read:
+                    ReadStmt readStmt = new ReadStmt ("ReadStmt", currentToken.Row);
                     Match (Token.Types.Read);
-                    Match (Token.Types.Identifier);
-                    return new Statement (currentToken.Row); // TODO  
+                    readStmt.AddChild (IdentifierNameStmt ());
+                    return readStmt;
                 case Token.Types.Print:
+                    PrintStmt printStmt = new PrintStmt ("PrintStmt", currentToken.Row);
                     Match (Token.Types.Print);
-                    Expr ();
-                    return new Statement (currentToken.Row); // TODO
+                    printStmt.AddChild (Expr ());
+                    return printStmt;
                 case Token.Types.Assert:
+                    AssertStmt assertStmt = new AssertStmt ("AssertStmt", currentToken.Row);
                     Match (Token.Types.Assert);
                     Match (Token.Types.LeftParenthesis);
-                    Expr ();
+                    assertStmt.AddChild (Expr ());
                     Match (Token.Types.RightParenthesis);
-                    return new Statement (currentToken.Row); // TODO   
+                    return assertStmt;
                 default:
-                    throw new SyntaxError ("temp message");
+                    throw new SyntaxError ("Syntax error: invalid start symbol for statement " + currentToken.Lexeme + 
+                        " on row " + currentToken.Row + "and column " + currentToken.Column);
             }
         }
 
-        private Statement Assign (VarDeclStmt varDeclStmt)
+        private IdentifierNameStmt IdentifierNameStmt () 
         {
-            if ((Token.Types)currentToken.Type == Token.Types.Assign) {
-                Token assign = Match (Token.Types.Assign);
-                return new AssignmentStmt (varDeclStmt, Expr (), assign.Row);
-            } else if ((Token.Types)currentToken.Type == Token.Types.Semicolon) {
-                return varDeclStmt;
-            } else {
-                throw new SyntaxError ("Expected Assign, got something else: " + currentToken.Type);
-            }
+            Token token = Match (Token.Types.Identifier);
+            IdentifierNameStmt identifierNameStmt = new IdentifierNameStmt(token.Lexeme, token.Row);
+            return identifierNameStmt;
         }
-
+            
         private Expression Expr ()
         {
             if ((Token.Types)currentToken.Type == Token.Types.LeftParenthesis ||
@@ -130,93 +144,144 @@ namespace Interpreter
                 (Token.Types)currentToken.Type == Token.Types.StringLiteral ||
                 (Token.Types)currentToken.Type == Token.Types.Identifier ||
                 (Token.Types)currentToken.Type == Token.Types.BoolLiteral) {
+                Expression expression = new Expression ("expr", currentToken.Row);
+
                 Expression left = Conjuct ();
                 Expression right = ExprLogical ();
-
-                if (right == null) {
-                    return left;
+                if (right.Name != null) {
+                    expression.AddChild (left);
+                    expression.AddChild (right);
+                    return expression;
                 } else {
-                    return new 
+                    return left;
                 }
             } else if ((Token.Types)currentToken.Type == Token.Types.Not) {
-                Token not = Match (Token.Types.Not);
-                return new UnaryExpr(new NotExpr(not.Row), Expr (), not.Row);
-            } else {
-                throw new SyntaxError ("Syntax Error: invalid token to start expression " + currentToken.Type + " on row " + 
-                    currentToken.Row + "and column " + currentToken.Column);
+                NotExpr notExpr = new NotExpr ("!", currentToken.Row);
+                Match (Token.Types.Not);
+                notExpr.AddChild (Expr ());
+                return notExpr;
             }
+
+            throw new SyntaxError ("Syntax Error: invalid token to start expression " + currentToken.Type + " on row " +
+            currentToken.Row + "and column " + currentToken.Column);
+            
         }
 
         private Expression ExprLogical ()
         {
             if ((Token.Types)currentToken.Type == Token.Types.And) {
-                LogicalOp ();
-                Conjuct ();
-                ExprLogical ();
+                LogicalExpr logicalExpr = new LogicalExpr ("&", currentToken.Row);
+                Match (Token.Types.And);
+                logicalExpr.AddChild (Conjuct ());
+                logicalExpr.AddChild (ExprLogical ());  
+                return logicalExpr;
             } else if ((Token.Types)currentToken.Type == Token.Types.RightParenthesis ||
                        (Token.Types)currentToken.Type == Token.Types.Range ||
                        (Token.Types)currentToken.Type == Token.Types.Do ||
                        (Token.Types)currentToken.Type == Token.Types.Semicolon) {
-                return null;
-            } else {
-                throw new SyntaxError ("Syntax Error: invalid token to start expression " + currentToken.Type + " on row " + 
-                    currentToken.Row + "and column " + currentToken.Column);
+                return new LogicalExpr(null, currentToken.Row); // TODO, return new logical expression instead?
             }
+                
+            throw new SyntaxError ("Syntax Error: invalid token to start expression " + currentToken.Type + " on row " +
+            currentToken.Row + "and column " + currentToken.Column);
         }
 
-        private void Conjuct ()
+        private Expression Conjuct ()
         {
             if ((Token.Types)currentToken.Type == Token.Types.LeftParenthesis ||
                 (Token.Types)currentToken.Type == Token.Types.IntLiteral ||
                 (Token.Types)currentToken.Type == Token.Types.StringLiteral ||
                 (Token.Types)currentToken.Type == Token.Types.Identifier ||
                 (Token.Types)currentToken.Type == Token.Types.BoolLiteral) {
-                ExprC ();
-                ExprRelational ();
-            } else {
-                AddError ("error");
+                Expression expression = new Expression ("expr", currentToken.Row);
+
+                Expression left = ExprC ();
+                Expression right = ExprRelational ();
+                if (right.Name != null) {
+                    expression.AddChild (left);
+                    expression.AddChild (right);
+                    return expression;
+                } else {
+                    return left;
+                }
             }
+                
+            throw new SyntaxError ("Syntax error: invalid type " + currentToken.Lexeme + " on row " + currentToken.Row +
+            "and column " + currentToken.Column);
         }
 
-        private void ExprRelational ()
+        private Expression ExprRelational ()
         {
             if ((Token.Types)currentToken.Type == Token.Types.Equal ||
                 (Token.Types)currentToken.Type == Token.Types.Less) {
-                RelationalOp ();
-                ExprC ();
-                ExprRelational ();
+
+                RelationalExpr relationalExpr;
+
+                if ((Token.Types)currentToken.Type == Token.Types.Equal) {
+                    Match (Token.Types.Equal);
+                    relationalExpr = new RelationalExpr ("=", currentToken.Row);
+                } else {
+                    Match (Token.Types.Less);
+                    relationalExpr = new RelationalExpr ("<", currentToken.Row);
+                }
+
+                relationalExpr.AddChild (ExprC ());
+                relationalExpr.AddChild (ExprRelational ());
+                return relationalExpr;
             } else if ((Token.Types)currentToken.Type == Token.Types.And ||
                        (Token.Types)currentToken.Type == Token.Types.RightParenthesis ||
                        (Token.Types)currentToken.Type == Token.Types.Range ||
                        (Token.Types)currentToken.Type == Token.Types.Do ||
                        (Token.Types)currentToken.Type == Token.Types.Semicolon) {
-                return;
-            } else {
-                AddError ("error");
+                return new RelationalExpr(null, currentToken.Row);
             }
+             
+            throw new SyntaxError ("Syntax error: invalid type " + currentToken.Lexeme + " on row " + currentToken.Row +
+            "and column " + currentToken.Column);
         }
 
-        private void ExprC ()
+        private Expression ExprC ()
         {
             if ((Token.Types)currentToken.Type == Token.Types.LeftParenthesis ||
                 (Token.Types)currentToken.Type == Token.Types.IntLiteral ||
                 (Token.Types)currentToken.Type == Token.Types.StringLiteral ||
                 (Token.Types)currentToken.Type == Token.Types.Identifier ||
                 (Token.Types)currentToken.Type == Token.Types.BoolLiteral) {
-                Term ();
-                ExprAdd ();
-            } else {
-                AddError ("error");
+                Expression expression = new Expression ("expr", currentToken.Row);
+
+                Expression left = Term ();
+                Expression right = ExprAdd ();
+                if (right.Name != null) {
+                    expression.AddChild (left);
+                    expression.AddChild (right);
+                    return expression;
+                } else {
+                    return left;
+                }
             }
+
+            throw new SyntaxError ("Syntax error: invalid type " + currentToken.Lexeme + " on row " + currentToken.Row +
+            "and column " + currentToken.Column);
         }
 
-        private void ExprAdd ()
+        private Expression ExprAdd ()
         {
             if ((Token.Types)currentToken.Type == Token.Types.Addition ||
                 (Token.Types)currentToken.Type == Token.Types.Subtraction) {
-                AddOp ();
-                Term ();
-                ExprAdd ();
+
+                ArithmeticExpr arithmeticExpr;
+
+                if ((Token.Types)currentToken.Type == Token.Types.Addition) {   
+                    Match (Token.Types.Addition);
+                    arithmeticExpr = new ArithmeticExpr ("+", currentToken.Row);
+                } else {
+                    Match (Token.Types.Subtraction);
+                    arithmeticExpr = new ArithmeticExpr ("-", currentToken.Row);
+                }
+
+                arithmeticExpr.AddChild (Term ());
+                arithmeticExpr.AddChild (ExprAdd ());
+                return arithmeticExpr;
             } else if ((Token.Types)currentToken.Type == Token.Types.Equal ||
                        (Token.Types)currentToken.Type == Token.Types.Less ||
                        (Token.Types)currentToken.Type == Token.Types.And ||
@@ -224,13 +289,14 @@ namespace Interpreter
                        (Token.Types)currentToken.Type == Token.Types.Range ||
                        (Token.Types)currentToken.Type == Token.Types.Do ||
                        (Token.Types)currentToken.Type == Token.Types.Semicolon) {
-                return;
-            } else {
-                AddError ("error");
+                return new ArithmeticExpr(null, currentToken.Row);
             }
+
+            throw new SyntaxError ("Syntax error: invalid type " + currentToken.Lexeme + " on row " + currentToken.Row +
+            " and column " + currentToken.Column);
         }
 
-        private void Term ()
+        private Expression Term ()
         {
             if ((Token.Types)currentToken.Type == Token.Types.LeftParenthesis ||
                 (Token.Types)currentToken.Type == Token.Types.IntLiteral ||
@@ -238,20 +304,41 @@ namespace Interpreter
                 (Token.Types)currentToken.Type == Token.Types.StringLiteral ||
                 (Token.Types)currentToken.Type == Token.Types.Identifier ||
                 (Token.Types)currentToken.Type == Token.Types.BoolLiteral) {
-                Factor ();
-                ExprMult ();
-            } else {
-                AddError ("error");
+                Expression expression = new Expression ("expr", currentToken.Row);
+
+                Expression left = Factor ();
+                Expression right = ExprMult ();
+                if (right.Name != null) {
+                    expression.AddChild (left);
+                    expression.AddChild (right);
+                    return expression;
+                } else {
+                    return left;
+                }
             }
+                
+            throw new SyntaxError ("Syntax error: invalid type " + currentToken.Lexeme + " on row " + currentToken.Row +
+            "and column " + currentToken.Column);
         }
 
-        private void ExprMult ()
+        private Expression ExprMult ()
         {
             if ((Token.Types)currentToken.Type == Token.Types.Multiplication ||
                 (Token.Types)currentToken.Type == Token.Types.Division) {
-                MultOp ();
-                Factor ();
-                ExprMult ();
+
+                ArithmeticExpr arithmeticExpr;
+
+                if ((Token.Types)currentToken.Type == Token.Types.Multiplication) { 
+                    Match (Token.Types.Multiplication);
+                    arithmeticExpr = new ArithmeticExpr ("*", currentToken.Row);
+                } else {
+                    Match (Token.Types.Division);
+                    arithmeticExpr = new ArithmeticExpr ("*", currentToken.Row);
+                }
+
+                arithmeticExpr.AddChild (Factor ());
+                arithmeticExpr.AddChild (ExprMult ());
+                return arithmeticExpr;
             } else if ((Token.Types)currentToken.Type == Token.Types.Addition ||
                        (Token.Types)currentToken.Type == Token.Types.Subtraction ||
                        (Token.Types)currentToken.Type == Token.Types.Equal ||
@@ -261,86 +348,63 @@ namespace Interpreter
                        (Token.Types)currentToken.Type == Token.Types.Range ||
                        (Token.Types)currentToken.Type == Token.Types.Do ||
                        (Token.Types)currentToken.Type == Token.Types.Semicolon) {
-                return;
-            } else {
-                AddError ("error");
+                return new ArithmeticExpr(null, currentToken.Row);
             }
+
+            throw new SyntaxError ("Syntax error: invalid type " + currentToken.Lexeme + " on row " + currentToken.Row +
+            "and column " + currentToken.Column);
         }
 
-        private void Factor ()
+        private Expression Factor ()
         {
             if ((Token.Types)currentToken.Type == Token.Types.LeftParenthesis) {
                 Match (Token.Types.LeftParenthesis);
-                Expr ();
+                Expression expr = Expr ();
                 Match (Token.Types.RightParenthesis);
+                return expr;
             } else if ((Token.Types)currentToken.Type == Token.Types.IntLiteral ||
                        (Token.Types)currentToken.Type == Token.Types.StringLiteral ||
                        (Token.Types)currentToken.Type == Token.Types.Identifier ||
                        (Token.Types)currentToken.Type == Token.Types.BoolLiteral) {
-                Value ();
+                return Value ();
             }
+
+            throw new SyntaxError ("Syntax error: invalid type " + currentToken.Lexeme + " on row " + currentToken.Row +
+            "and column " + currentToken.Column);
         }
 
-        private void Value ()
+        private Expression Value ()
         {
             switch ((Token.Types)currentToken.Type) {
                 case Token.Types.IntLiteral:
                     {
+                        IntValueExpr expr = new IntValueExpr (currentToken.Lexeme, currentToken.Row);
                         Match (Token.Types.IntLiteral);
-                        return;
+                        return expr;
                     }
                 case Token.Types.StringLiteral:
                     {
+                        StringValueExpr expr = new StringValueExpr (currentToken.Lexeme, currentToken.Row);
                         Match (Token.Types.StringLiteral);
-                        return;
+                        return expr;
                     }
                 case Token.Types.BoolLiteral:
                     {
+                        BoolValueExpr expr = new BoolValueExpr (currentToken.Lexeme, currentToken.Row);
                         Match (Token.Types.BoolLiteral);
-                        return;
+                        return expr;
                     }
                 case Token.Types.Identifier:
                     {
+                        IdentifierValueExpr expr = new IdentifierValueExpr (currentToken.Lexeme, currentToken.Row);
                         Match (Token.Types.Identifier);
-                        return;
+                        return expr;
                     }
                 default:
                     {
-                        AddError ("Invalid operand: " + currentToken.Type);
-                        return;
+                        throw new SyntaxError ("Syntax error: invalid type " + currentToken.Lexeme + " on row " + currentToken.Row +
+                        "and column " + currentToken.Column);
                     }
-            }
-        }
-
-        private void LogicalOp ()
-        {
-            Match (Token.Types.And);
-        }
-
-        private void RelationalOp ()
-        {
-            if ((Token.Types)currentToken.Type == Token.Types.Equal) {
-                Match (Token.Types.Equal);
-            } else if ((Token.Types)currentToken.Type == Token.Types.Less) {
-                Match (Token.Types.Less);
-            }
-        }
-
-        private void AddOp ()
-        {
-            if ((Token.Types)currentToken.Type == Token.Types.Addition) {   
-                Match (Token.Types.Addition);
-            } else if ((Token.Types)currentToken.Type == Token.Types.Subtraction) {
-                Match (Token.Types.Subtraction);
-            }
-        }
-
-        private void MultOp ()
-        {
-            if ((Token.Types)currentToken.Type == Token.Types.Multiplication) { 
-                Match (Token.Types.Multiplication);
-            } else if ((Token.Types)currentToken.Type == Token.Types.Division) {
-                Match (Token.Types.Division);
             }
         }
 
@@ -350,13 +414,13 @@ namespace Interpreter
             switch ((Token.Types)currentToken.Type) {
                 case Token.Types.Int:
                     token = Match (Token.Types.Int);
-                    return new IntType (token.Row);
+                    return new IntType ("Int", token.Row);
                 case Token.Types.String:
                     token = Match (Token.Types.String);
-                    return new StringType (token.Row);
+                    return new StringType ("String", token.Row);
                 case Token.Types.Bool:
                     token = Match (Token.Types.Bool);
-                    return new BoolType (token.Row);
+                    return new BoolType ("Bool", token.Row);
                 default:
                     throw new SyntaxError ("Syntax error: invalid type " + currentToken.Lexeme + " on row " + currentToken.Row +
                     "and column " + currentToken.Column);
@@ -373,10 +437,10 @@ namespace Interpreter
             } else if ((Token.Types)currentToken.Type == Token.Types.ERROR) {
                 throw new LexicalError ("Lexical Error: malformed token \"" + currentToken.Lexeme + "\" on row " + currentToken.Row +
                 "and column " + currentToken.Column);
-            } else {
-                throw new SyntaxError ("Syntax Error: invalid token " + currentToken.Type + " on row " + currentToken.Row +
-                "and column " + currentToken.Column + ", expected: " + type);
             }
+
+            throw new SyntaxError ("Syntax Error: invalid token " + currentToken.Type + " on row " + currentToken.Row +
+            "and column " + currentToken.Column + ", expected: " + type);
         }
 
         private void ReadNextToken ()
@@ -384,28 +448,19 @@ namespace Interpreter
             currentToken = scanner.GetNextToken ();
         }
 
-        private void PrintErrors ()
-        {
-            
-        }
-
-        private void AddError (string error)
-        {
-            errors.Add (new Exception (error));
-        }
-
         private void SkipToNextStatement ()
         {
             while (true) {
                 ReadNextToken ();
-                if ((Token.Types)currentToken.Type == Token.Types.Var ||
-                    (Token.Types)currentToken.Type == Token.Types.Identifier ||
-                    (Token.Types)currentToken.Type == Token.Types.For ||
-                    (Token.Types)currentToken.Type == Token.Types.Read ||
-                    (Token.Types)currentToken.Type == Token.Types.Print ||
-                    (Token.Types)currentToken.Type == Token.Types.Assert ||
-                    (Token.Types)currentToken.Type == Token.Types.End ||
-                    (Token.Types)currentToken.Type == Token.Types.EOS) {
+                Token.Types type = (Token.Types)currentToken.Type;
+                if (type == Token.Types.Var ||
+                    type == Token.Types.Identifier ||
+                    type == Token.Types.For ||
+                    type == Token.Types.Read ||
+                    type == Token.Types.Print ||
+                    type == Token.Types.Assert ||
+                    type == Token.Types.End ||
+                    type == Token.Types.EOS) {
                     break;
                 }
             }

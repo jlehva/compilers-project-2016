@@ -4,7 +4,7 @@ namespace Interpreter
 {
     public class BoolType : Type
     {
-        public BoolType (int row) : base(row)
+        public BoolType (string name, int row) : base(name, row)
         {
         }
     }

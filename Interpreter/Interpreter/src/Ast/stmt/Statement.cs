@@ -4,7 +4,7 @@ namespace Interpreter
 {
     public class Statement : Node
     {
-        public Statement (int row) : base (row)
+        public Statement (string name, int row) : base (name, row)
         {
         }
     }
