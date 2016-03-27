@@ -27,11 +27,12 @@ namespace InterpreterTests
             string app = "var X : int := 4 + (6 * 2);\n" +
                 "print X;";
             Parser parser = new Parser (new Scanner (app));
-            parser.Parse ();
-            foreach (Exception e in parser.GetErrors()) {
-                System.Console.WriteLine (e.Message);
-            }
+            Program prog = parser.Parse ();
+            //foreach (Exception e in parser.GetErrors()) {
+            //    System.Console.WriteLine (e.Message);
+            //}
             Assert.AreEqual (0, parser.GetErrors ().Count);
+            prog.Print ();
         }
 
         [Test ()]
@@ -47,8 +48,9 @@ namespace InterpreterTests
                 "end for;\n" +
                 "assert (x = nTimes);\n";
             Parser parser = new Parser (new Scanner (app));
-            parser.Parse ();
+            Program prog = parser.Parse ();
             Assert.AreEqual (0, parser.GetErrors ().Count);
+            prog.Print ();
         }
 
         [Test ()]
@@ -65,8 +67,9 @@ namespace InterpreterTests
                 "print \"The result is: \";\n" +
                 "print v;";
             Parser parser = new Parser (new Scanner (app));
-            parser.Parse ();
+            Program prog = parser.Parse ();
             Assert.AreEqual (0, parser.GetErrors ().Count);
+            prog.Print ();
         }
 
         [Test ()]

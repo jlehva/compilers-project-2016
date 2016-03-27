@@ -45,6 +45,7 @@ namespace Interpreter
 
         private Stmts Stmts ()
         {
+            System.Console.WriteLine (" = = = = = = = = = = NEW STATEMENT = = = = = ");
             Stmts statements = new Stmts ("stmts", currentToken.Row);
 
             if ((Token.Types)currentToken.Type == Token.Types.Var ||
@@ -171,7 +172,7 @@ namespace Interpreter
                        (Token.Types)currentToken.Type == Token.Types.Range ||
                        (Token.Types)currentToken.Type == Token.Types.Do ||
                        (Token.Types)currentToken.Type == Token.Types.Semicolon) {
-                return null; // TODO, return new logical expression instead?
+                return new LogicalExpr("null", currentToken.Row); // TODO, return new logical expression instead?
             }
                 
             throw new SyntaxError ("Syntax Error: invalid token to start expression " + currentToken.Type + " on row " +
@@ -218,7 +219,7 @@ namespace Interpreter
                        (Token.Types)currentToken.Type == Token.Types.Range ||
                        (Token.Types)currentToken.Type == Token.Types.Do ||
                        (Token.Types)currentToken.Type == Token.Types.Semicolon) {
-                return null;
+                return new RelationalExpr("null", currentToken.Row);
             }
              
             throw new SyntaxError ("Syntax error: invalid type " + currentToken.Lexeme + " on row " + currentToken.Row +
@@ -267,7 +268,7 @@ namespace Interpreter
                        (Token.Types)currentToken.Type == Token.Types.Range ||
                        (Token.Types)currentToken.Type == Token.Types.Do ||
                        (Token.Types)currentToken.Type == Token.Types.Semicolon) {
-                return null;
+                return new ArithmeticExpr("null", currentToken.Row);
             }
 
             throw new SyntaxError ("Syntax error: invalid type " + currentToken.Lexeme + " on row " + currentToken.Row +
@@ -319,7 +320,7 @@ namespace Interpreter
                        (Token.Types)currentToken.Type == Token.Types.Range ||
                        (Token.Types)currentToken.Type == Token.Types.Do ||
                        (Token.Types)currentToken.Type == Token.Types.Semicolon) {
-                return null;
+                return new ArithmeticExpr("null", currentToken.Row);
             }
 
             throw new SyntaxError ("Syntax error: invalid type " + currentToken.Lexeme + " on row " + currentToken.Row +
