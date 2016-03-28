@@ -45,7 +45,7 @@ namespace Interpreter
 
         private Stmts Stmts ()
         {
-            System.Console.WriteLine (" = = = = = = = = = = NEW STATEMENT = = = = = ");
+            // System.Console.WriteLine (" = = = = = = = = = = NEW STATEMENT = = = = = ");
             Stmts statements = new Stmts ("stmts", currentToken.Row);
 
             if ((Token.Types)currentToken.Type == Token.Types.Var ||
@@ -429,7 +429,7 @@ namespace Interpreter
 
         private Token Match (Token.Types type)
         {
-            System.Console.WriteLine (type);
+            // System.Console.WriteLine (type);
             if ((Token.Types)currentToken.Type == type) {
                 Token current = currentToken;
                 ReadNextToken ();

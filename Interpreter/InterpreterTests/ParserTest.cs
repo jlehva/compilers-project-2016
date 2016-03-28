@@ -60,7 +60,7 @@ namespace InterpreterTests
                 "var n : int;\n" +
                 "read n;\n" +
                 "var v : int := 1;\n" +
-                "var i : int;" +
+                "var i : int;\n" +
                 "for i in 1..n do\n" + 
                 "v := v * i;\n" +
                 "end for;\n" +
