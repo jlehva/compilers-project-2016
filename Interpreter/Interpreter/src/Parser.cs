@@ -54,12 +54,16 @@ namespace Interpreter
                 (Token.Types)currentToken.Type == Token.Types.Read ||
                 (Token.Types)currentToken.Type == Token.Types.Print ||
                 (Token.Types)currentToken.Type == Token.Types.Assert) {
-
+                try {
                     statements.AddChild (Stmt());
                     Match (Token.Types.Semicolon);
                     statements.AddChild (Stmts ());
                     return statements;
-
+                } catch (Exception e) {
+                    errors.Add (e);
+                    SkipToNextStatement ();
+                    return Stmts ();
+                }
             } else if ((Token.Types)currentToken.Type == Token.Types.End ||
                        (Token.Types)currentToken.Type == Token.Types.EOS) {
                 return statements;
