@@ -4,28 +4,29 @@ namespace Interpreter
 {
     public interface NodeVisitor
     {
-        void visit(Program node);
-        void visit(AssertStmt node);
-        void visit(AssignmentStmt node);
-        void visit(ForStmt node);
-        void visit(IdentifierNameStmt node);
-        void visit(PrintStmt node);
-        void visit(ReadStmt node);
-        void visit(VarDeclStmt node);
-        void visit(VarStmt node);
-        void visit(ArithmeticExpr node);
-        void visit(BoolValueExpr node);
-        void visit(IdentifierValueExpr node);
-        void visit(Expression node);
-        void visit(IdentifierValueExpr node);
-        void visit(IntValueExpr node);
-        void visit(LogicalExpr node);
-        void visit(NotExpr node);
-        void visit(RelationalExpr node);
-        void visit(StringValueExpr node);
-        void visit(BoolType node);
-        void visit(IntType node);
-        void visit(StringType node);
+        void Visit(Node node);
+        void Visit(Program node);
+        void Visit(Stmts node);
+        void Visit(AssertStmt node);
+        void Visit(AssignmentStmt node);
+        void Visit(ForStmt node);
+        void Visit(IdentifierNameStmt node);
+        void Visit(PrintStmt node);
+        void Visit(ReadStmt node);
+        void Visit(VarDeclStmt node);
+        void Visit(VarStmt node);
+        void Visit(ArithmeticExpr node);
+        void Visit(BoolValueExpr node);
+        void Visit(Expression node);
+        void Visit(IdentifierValueExpr node);
+        void Visit(IntValueExpr node);
+        void Visit(LogicalExpr node);
+        void Visit(NotExpr node);
+        void Visit(RelationalExpr node);
+        void Visit(StringValueExpr node);
+        void Visit(BoolType node);
+        void Visit(IntType node);
+        void Visit(StringType node);
     }
 }
 

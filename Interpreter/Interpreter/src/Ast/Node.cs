@@ -20,6 +20,19 @@ namespace Interpreter
             Children.Add (child);
         }
 
+        public void Accept (NodeVisitor visitor)
+        {
+            System.Console.WriteLine (this.GetType ());
+            for (int i = 0; i < Children.Count - 1; i++) {
+                visitor.Visit (this); // FFS
+                Children[i].Accept (visitor);
+            }
+
+            if (Children.Count > 0) {
+                visitor.Visit (this);
+                Children[Children.Count - 1].Accept(visitor);
+            }
+        }
         // http://stackoverflow.com/questions/4965335/how-to-print-binary-tree-diagram/8948691#8948691
         public void Print() {
             Print("", true);
