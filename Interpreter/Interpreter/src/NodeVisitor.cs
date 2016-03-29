@@ -14,7 +14,6 @@ namespace Interpreter
         void Visit(PrintStmt node);
         void Visit(ReadStmt node);
         void Visit(VarDeclStmt node);
-        void Visit(VarStmt node);
         void Visit(ArithmeticExpr node);
         void Visit(BoolValueExpr node);
         void Visit(Expression node);

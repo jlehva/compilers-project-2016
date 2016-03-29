@@ -69,7 +69,7 @@ namespace InterpreterTests
             Parser parser = new Parser (new Scanner (app));
             Program prog = parser.Parse ();
             Assert.AreEqual (0, parser.GetErrors ().Count);
-            prog.Print ();
+
         }
 
         [Test ()]
@@ -102,12 +102,25 @@ namespace InterpreterTests
 
         [Test ()]
         public void TestStringExpressionAst() {
-            string app = "print \"test\";";
+            string app = "print 1 + (2 + 3);";
             Parser parser = new Parser (new Scanner (app));
             Program prog = parser.Parse ();
             // Assert.NotNull (prog.Statements.Left); // Statement
             // Assert.IsNull (prog.Statements.Right); // Statements / tail
             // Assert.AreEqual (prog.Statements.Left.Left);
+            // prog.Print ();
+        }
+
+        [Test ()]
+        public void TestStringExpressionAsd() {
+            string app = "print 1 * 2 + 5 - 7 * 5 + 6 + 9 / 3 * 4 / 5;";
+            System.Console.WriteLine (app);
+            Parser parser = new Parser (new Scanner (app));
+            Program prog = parser.Parse ();
+            // Assert.NotNull (prog.Statements.Left); // Statement
+            // Assert.IsNull (prog.Statements.Right); // Statements / tail
+            // Assert.AreEqual (prog.Statements.Left.Left);
+            // prog.Print ();
         }
 
         [Test ()]
@@ -123,10 +136,15 @@ namespace InterpreterTests
                 "end for;\n" +
                 "print \"The result is: \";\n" +
                 "print v;";
+            app = "print 1 * 2 + 5 - 7 * 5 + 6 + 9 / 3 * 4 / 5;";
+            app = "print 1 * 2 * 5 * 7 * 5 * 6 * 9 * 3 * 4 * 5;";
+            app = "print 1 * 2 + 5 * 7 + 5 * 6 + 9 * 3 + 4 * 5;";
+            System.Console.WriteLine (app);
             Parser parser = new Parser (new Scanner (app));
             Program prog = parser.Parse ();
+            prog.Print ();
             SemanticAnalyser semanticAnalyser = new SemanticAnalyser ();
-            semanticAnalyser.Run (prog);
+            // semanticAnalyser.Run (prog);
         }
     }
 }

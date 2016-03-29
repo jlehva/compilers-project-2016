@@ -6,7 +6,7 @@ namespace Interpreter
     public abstract class Node
     {
         public int Row { get; private set; }
-        public string Name { get; private set; } // mainly used for printing the tree
+        public string Name { get; set; } // mainly used for printing the tree
         public List<Node> Children { get; private set; }
 
         public Node (string name, int row)
@@ -20,26 +20,15 @@ namespace Interpreter
             Children.Add (child);
         }
 
-        public void Accept (NodeVisitor visitor)
-        {
-            System.Console.WriteLine (this.GetType ());
-            for (int i = 0; i < Children.Count - 1; i++) {
-                visitor.Visit (this); // FFS
-                Children[i].Accept (visitor);
-            }
+        public abstract void Accept (NodeVisitor visitor);
 
-            if (Children.Count > 0) {
-                visitor.Visit (this);
-                Children[Children.Count - 1].Accept(visitor);
-            }
-        }
         // http://stackoverflow.com/questions/4965335/how-to-print-binary-tree-diagram/8948691#8948691
         public void Print() {
             Print("", true);
         }
 
         private void Print(String prefix, bool isTail) {
-            System.Console.WriteLine(prefix + (isTail ? "└── " : "├── ") + Name);
+            System.Console.WriteLine(prefix + (isTail ? "└── " : "├── ") + this.Name + " (" + this.GetType () + ")");
             for (int i = 0; i < Children.Count - 1; i++) {
                 Children[i].Print(prefix + (isTail ? "    " : "│   "), false);
             }
