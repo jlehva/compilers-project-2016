@@ -110,7 +110,10 @@ namespace Interpreter
 
         public void Visit (ReadStmt node)
         {
-            VisitChildren (node);
+            if (!SymbolTable.ContainsKey (node.Children [0].Name)) {
+                throw new SemanticError ("Semantic error: Symbol " + node.Children [0].Name + " must be declared before value " +
+                    "can be assigned for it , on row: " + node.Children [0].Row);
+            }
         }
 
         public void Visit (VarDeclStmt node)
