@@ -34,7 +34,7 @@ namespace Interpreter
 
         public void VisitChildren (Node node)
         {
-            System.Console.WriteLine (node.GetType ());
+            System.Console.WriteLine (node.Name);
             for (int i = 0; i < node.Children.Count - 1; i++) {
                 node.Children[i].Accept (this);
             }
@@ -67,7 +67,9 @@ namespace Interpreter
         {
             string name = node.Children [0].Name;
 
-            if (!SymbolTable.ContainsKey (name)) {
+            try {
+                if (!SymbolTable.ContainsKey (name)) {}
+            } catch (KeyNotFoundException e) {
                 throw new SemanticError ("Semantic error: Symbol with name " + name + " needs to be declared before use, on row: " + node.Children [0].Row);
             }
             // todo: check if the assigned expression is of the same type as the variable in symbol table
@@ -121,11 +123,14 @@ namespace Interpreter
             }
 
             if (node.Children.Count == 3) {
-                // value = evaluateExpressionValue (node.Children [2]);
+                VisitChildren(node.Children [2]);
+                if (TypeStack.Pop () != type) {
+                    throw new SemanticError ("Semantic error: Expression value assigned for " + name + 
+                        " was not the same type of " + type + ", on row: " + node.Children [0].Row);
+                }
             }
 
             SymbolTable.Add (name, new Symbol(name, type, value));
-
             VisitChildren (node);
         }
 

@@ -132,11 +132,11 @@ namespace InterpreterTests
             // app = "print 1 + 2;";
             // app = "print 1 + 2;";
 
-            System.Console.WriteLine (app);
+            // System.Console.WriteLine (app);
             Parser parser = new Parser (new Scanner (app));
             Program prog = parser.Parse ();
             // prog.Print ();
-            SemanticAnalyser semanticAnalyser = new SemanticAnalyser ();
+            // SemanticAnalyser semanticAnalyser = new SemanticAnalyser ();
             // semanticAnalyser.Run (prog);
         }
     }
