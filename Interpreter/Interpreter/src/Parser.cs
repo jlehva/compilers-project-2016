@@ -45,7 +45,6 @@ namespace Interpreter
 
         private Stmts Stmts ()
         {
-            // System.Console.WriteLine (" = = = = = = = = = = NEW STATEMENT = = = = = ");
             Stmts statements = new Stmts ("stmts", currentToken.Row);
 
             if ((Token.Types)currentToken.Type == Token.Types.Var ||
@@ -148,14 +147,13 @@ namespace Interpreter
                 (Token.Types)currentToken.Type == Token.Types.StringLiteral ||
                 (Token.Types)currentToken.Type == Token.Types.Identifier ||
                 (Token.Types)currentToken.Type == Token.Types.BoolLiteral) {
-                Expression expression = new Expression ("expr", currentToken.Row);
 
                 Expression left = Conjuct ();
                 Expression right = ExprLogical ();
+
                 if (right.Name != null) {
-                    expression.AddChild (left);
-                    expression.AddChild (right);
-                    return expression;
+                    right.AddChild (left);
+                    return right;
                 } else {
                     return left;
                 }
@@ -176,14 +174,20 @@ namespace Interpreter
             if ((Token.Types)currentToken.Type == Token.Types.And) {
                 LogicalExpr logicalExpr = new LogicalExpr ("&", currentToken.Row);
                 Match (Token.Types.And);
+
                 logicalExpr.AddChild (Conjuct ());
-                logicalExpr.AddChild (ExprLogical ());  
+                Expression expression = ExprLogical ();
+
+                if (expression.Name != null) {
+                    logicalExpr.AddChild (expression);
+                }
+
                 return logicalExpr;
             } else if ((Token.Types)currentToken.Type == Token.Types.RightParenthesis ||
                        (Token.Types)currentToken.Type == Token.Types.Range ||
                        (Token.Types)currentToken.Type == Token.Types.Do ||
                        (Token.Types)currentToken.Type == Token.Types.Semicolon) {
-                return new LogicalExpr(null, currentToken.Row); // TODO, return new logical expression instead?
+                return new LogicalExpr(null, currentToken.Row);
             }
                 
             throw new SyntaxError ("Syntax Error: invalid token to start expression " + currentToken.Type + " on row " +
@@ -197,14 +201,13 @@ namespace Interpreter
                 (Token.Types)currentToken.Type == Token.Types.StringLiteral ||
                 (Token.Types)currentToken.Type == Token.Types.Identifier ||
                 (Token.Types)currentToken.Type == Token.Types.BoolLiteral) {
-                Expression expression = new Expression ("expr", currentToken.Row);
 
                 Expression left = ExprC ();
                 Expression right = ExprRelational ();
+
                 if (right.Name != null) {
-                    expression.AddChild (left);
-                    expression.AddChild (right);
-                    return expression;
+                    right.AddChild (left);
+                    return right;
                 } else {
                     return left;
                 }
@@ -230,7 +233,12 @@ namespace Interpreter
                 }
 
                 relationalExpr.AddChild (ExprC ());
-                relationalExpr.AddChild (ExprRelational ());
+                Expression expression = ExprRelational ();
+
+                if (expression.Name != null) {
+                    relationalExpr.AddChild (expression);
+                }
+
                 return relationalExpr;
             } else if ((Token.Types)currentToken.Type == Token.Types.And ||
                        (Token.Types)currentToken.Type == Token.Types.RightParenthesis ||
@@ -251,14 +259,13 @@ namespace Interpreter
                 (Token.Types)currentToken.Type == Token.Types.StringLiteral ||
                 (Token.Types)currentToken.Type == Token.Types.Identifier ||
                 (Token.Types)currentToken.Type == Token.Types.BoolLiteral) {
-                Expression expression = new Expression ("expr", currentToken.Row);
 
                 Expression left = Term ();
                 Expression right = ExprAdd ();
+
                 if (right.Name != null) {
-                    expression.AddChild (left);
-                    expression.AddChild (right);
-                    return expression;
+                    right.AddChild (left); // this adds the third child to right if there's 1 + 2 + 3 (same operator many times in a row)
+                    return right;
                 } else {
                     return left;
                 }
@@ -284,7 +291,12 @@ namespace Interpreter
                 }
 
                 arithmeticExpr.AddChild (Term ());
-                arithmeticExpr.AddChild (ExprAdd ());
+                Expression expression = ExprAdd ();
+
+                if (expression.Name != null) {
+                    arithmeticExpr.AddChild (expression);
+                }
+
                 return arithmeticExpr;
             } else if ((Token.Types)currentToken.Type == Token.Types.Equal ||
                        (Token.Types)currentToken.Type == Token.Types.Less ||
@@ -308,14 +320,13 @@ namespace Interpreter
                 (Token.Types)currentToken.Type == Token.Types.StringLiteral ||
                 (Token.Types)currentToken.Type == Token.Types.Identifier ||
                 (Token.Types)currentToken.Type == Token.Types.BoolLiteral) {
-                Expression expression = new Expression ("expr", currentToken.Row);
 
                 Expression left = Factor ();
                 Expression right = ExprMult ();
+
                 if (right.Name != null) {
-                    expression.AddChild (left);
-                    expression.AddChild (right);
-                    return expression;
+                    right.AddChild (left);
+                    return right;
                 } else {
                     return left;
                 }
@@ -337,11 +348,16 @@ namespace Interpreter
                     arithmeticExpr = new ArithmeticExpr ("*", currentToken.Row);
                 } else {
                     Match (Token.Types.Division);
-                    arithmeticExpr = new ArithmeticExpr ("*", currentToken.Row);
+                    arithmeticExpr = new ArithmeticExpr ("/", currentToken.Row);
                 }
 
                 arithmeticExpr.AddChild (Factor ());
-                arithmeticExpr.AddChild (ExprMult ());
+                Expression expression = ExprMult ();
+
+                if (expression.Name != null) {
+                    arithmeticExpr.AddChild (expression);
+                }
+
                 return arithmeticExpr;
             } else if ((Token.Types)currentToken.Type == Token.Types.Addition ||
                        (Token.Types)currentToken.Type == Token.Types.Subtraction ||
@@ -365,6 +381,7 @@ namespace Interpreter
                 Match (Token.Types.LeftParenthesis);
                 Expression expr = Expr ();
                 Match (Token.Types.RightParenthesis);
+
                 return expr;
             } else if ((Token.Types)currentToken.Type == Token.Types.IntLiteral ||
                        (Token.Types)currentToken.Type == Token.Types.StringLiteral ||
@@ -433,7 +450,6 @@ namespace Interpreter
 
         private Token Match (Token.Types type)
         {
-            // System.Console.WriteLine (type);
             if ((Token.Types)currentToken.Type == type) {
                 Token current = currentToken;
                 ReadNextToken ();
