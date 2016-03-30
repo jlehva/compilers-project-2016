@@ -173,7 +173,12 @@ namespace Interpreter
 
         public void Visit (NotExpr node)
         {
-            VisitChildren (node);
+            VisitChildren (node.Children [0]);
+            string type = TypeStack.Pop ();
+            if (type != "Bool") {
+                throw new SemanticError ("Semantic error: Operator " + node.Name + " can not be applied to operand of type: " +
+                    type + ", on row " + node.Row);
+            }
         }
 
         public void Visit (RelationalExpr node)

@@ -265,7 +265,6 @@ namespace InterpreterTests
             prog = new Parser (new Scanner (app)).Parse ();
             semanticAnalyser.Run (prog);
 
-            System.Console.WriteLine ("wat is happening =====================================");
             app = "var i : bool := 1 = 1;";
             semanticAnalyser = new SemanticAnalyser ();
             prog = new Parser (new Scanner (app)).Parse ();
@@ -274,6 +273,35 @@ namespace InterpreterTests
             app = "var i : bool := \"this fails\" = true;";
             prog = new Parser (new Scanner (app)).Parse ();
             semanticAnalyser = new SemanticAnalyser ();
+
+            try {
+                semanticAnalyser.Run (prog);
+                Assert.Fail();
+            } catch (SemanticError error) {
+                // this is what we want
+                Assert.Pass (error.Message);
+            } catch (Exception e) {
+                Assert.Fail ("Wrong exception: " + e.Message);
+            }
+        }
+
+        [Test ()]
+        public void TestNotExpressions () {
+            Program prog;
+
+            string app = "var i : bool := !true;";
+            SemanticAnalyser semanticAnalyser = new SemanticAnalyser ();
+            prog = new Parser (new Scanner (app)).Parse ();
+            semanticAnalyser.Run (prog);
+
+            app = "var i : bool := !(2 = 2);";
+            semanticAnalyser = new SemanticAnalyser ();
+            prog = new Parser (new Scanner (app)).Parse ();
+            semanticAnalyser.Run (prog);
+
+            app = "var i : bool := !2;";
+            semanticAnalyser = new SemanticAnalyser ();
+            prog = new Parser (new Scanner (app)).Parse ();
 
             try {
                 semanticAnalyser.Run (prog);
