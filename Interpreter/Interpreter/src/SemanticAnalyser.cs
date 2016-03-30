@@ -8,11 +8,13 @@ namespace Interpreter
         public Dictionary<string, Symbol> SymbolTable { get; private set; }
         public Stack<Node> OperandStack { get; private set; }
         public Stack<Node> NodeStack { get; private set; }
+        public Stack<string> TypeStack { get; private set; }
 
         public SemanticAnalyser ()
         {
             SymbolTable = new Dictionary<string, Symbol> ();
             NodeStack = new Stack<Node> ();
+            TypeStack = new Stack<string> ();
         }
 
         public void Run (Program program)
@@ -24,9 +26,9 @@ namespace Interpreter
             foreach (Node node in NodeStack) {
                 System.Console.WriteLine (node.Name);
             }
-            System.Console.WriteLine ("POPPING:");
-            foreach (Node node in NodeStack) {
-                System.Console.WriteLine (NodeStack.Pop ().Name);
+            System.Console.WriteLine ("TypeStack:");
+            foreach (string type in TypeStack) {
+                System.Console.WriteLine (type);
             }
         }
 
@@ -44,137 +46,148 @@ namespace Interpreter
 
         public void Visit (Node node)
         {
-            System.Console.WriteLine ("Visit Node");
         }
 
         public void Visit (Program node)
         {
-            System.Console.WriteLine ("Visit Program");
             VisitChildren (node);
         }
 
         public void Visit(Stmts node)
         {
-            System.Console.WriteLine ("Visit Stmts");
             VisitChildren (node);
         }
 
         public void Visit (AssertStmt node)
         {
-            System.Console.WriteLine ("Visit AssertStmt DO STUFF");
             VisitChildren (node);
         }
 
         public void Visit (AssignmentStmt node)
         {
-            System.Console.WriteLine ("Visit AssignmentStmt DO STUFF");
+            string name = node.Children [0].Name;
+
+            if (!SymbolTable.ContainsKey (name)) {
+                throw new SemanticError ("Semantic error: Symbol with name " + name + " needs to be declared before use, on row: " + node.Children [0].Row);
+            }
+            // todo: check if the assigned expression is of the same type as the variable in symbol table
             VisitChildren (node);
         }
 
         public void Visit (ForStmt node)
         {
-            System.Console.WriteLine ("Visit ForStmt DO STUFF");
             VisitChildren (node);
         }
 
         public void Visit (IdentifierNameStmt node)
         {
-            System.Console.WriteLine ("Visit IdentifierNameStmt DO STUFF");
             VisitChildren (node);
         }
 
         public void Visit (PrintStmt node)
         {
-            System.Console.WriteLine ("Visit PrintStmt DO STUFF");
-            // NodeStack.Push (node);
             VisitChildren (node);
         }
 
         public void Visit (ReadStmt node)
         {
-            System.Console.WriteLine ("Visit ReadStmt DO STUFF");
-            // NodeStack.Push (node);
             VisitChildren (node);
         }
 
         public void Visit (VarDeclStmt node)
         {
-            System.Console.WriteLine ("Visit VarDeclStmt DO STUFF");
-            // NodeStack.Push (node);
+            System.Console.WriteLine ("- - - - - - Visit VarDeclStmt");
+            System.Console.WriteLine (node.Name);
+            System.Console.WriteLine (node.Children.Count);
+            System.Console.WriteLine (node.Children[0].Name);
+            System.Console.WriteLine (node.Children[1].Name);
+            // System.Console.WriteLine (node.Children[2].Name);
+            string name = node.Children [0].Name;
+
+            if (SymbolTable.ContainsKey (name)) {
+                throw new SemanticError ("Semantic error: Symbol with name " + name + " already exists, on row: " + node.Children [0].Row);
+            }
+
+            string type = node.Children [1].Name;
+            string value;
+
+            //  If not explicitly initialized, variables are assigned an appropriate default value.
+            if (type == "Int") {
+                value = "0";
+            } else if (type == "Bool") {
+                value = "false";
+            } else {
+                value = null;
+            }
+
+            if (node.Children.Count == 3) {
+                // value = evaluateExpressionValue (node.Children [2]);
+            }
+
+            SymbolTable.Add (name, new Symbol(name, type, value));
+
             VisitChildren (node);
         }
 
         public void Visit (ArithmeticExpr node)
         {
-            System.Console.WriteLine ("Visit ArithmeticExpr DO STUFF");
-            if (node.Name != null) {
-                NodeStack.Push (node);
-            }
             VisitChildren (node);
+
+            string type1 = TypeStack.Pop ();
+            string type2 = TypeStack.Pop ();
+
+            if (type1 != "Int" || type2 != "Int") {
+                throw new SemanticError ("Semantic error: Operator " + node.Name + " can only be applied to Integers, not " +
+                type1 + " " + node.Name + " " + type2 + ", on row " + node.Children [0].Row);
+            } else {
+                TypeStack.Push ("Int"); // "Int op Int" results to new Int in the stack
+            }
         }
 
         public void Visit (BoolValueExpr node)
         {
-            System.Console.WriteLine ("Visit BoolValueExpr DO STUFF");
-            NodeStack.Push (node);
+            TypeStack.Push ("Bool");
             VisitChildren (node);
         }
 
         public void Visit (Expression node)
         {
-            System.Console.WriteLine ("Visit Expression DO STUFF");
             VisitChildren (node);
-            // evaluate stack
         }
 
         public void Visit (IdentifierValueExpr node)
         {
-            System.Console.WriteLine ("Visit IdentifierValueExpr");
-            NodeStack.Push (node);
+            TypeStack.Push (SymbolTable[node.Name].Type);
             VisitChildren (node);
         }
 
         public void Visit (IntValueExpr node)
-        {
-            System.Console.WriteLine ("Visit IntValueExpr " + node.Name);
-            //f (node.Name != null) {
-            NodeStack.Push (node);
-            // }
-                
+        {               
+            TypeStack.Push ("Int");
             VisitChildren (node);
         }
 
         public void Visit (LogicalExpr node)
         {
             System.Console.WriteLine ("Visit LogicalExpr");
-            if (node.Name != null) {
-                NodeStack.Push (node);
-            }
             VisitChildren (node);
         }
 
         public void Visit (NotExpr node)
         {
             System.Console.WriteLine ("Visit NotExpr");
-            if (node.Name != null) {
-                NodeStack.Push (node);
-            }
             VisitChildren (node);
         }
 
         public void Visit (RelationalExpr node)
         {
             System.Console.WriteLine ("Visit RelationalExpr");
-            if (node.Name != null) {
-                NodeStack.Push (node);
-            }
             VisitChildren (node);
         }
 
         public void Visit (StringValueExpr node)
         {
-            System.Console.WriteLine ("Visit StringValueExpr");
-            NodeStack.Push (node);
+            TypeStack.Push ("String");
             VisitChildren (node);
         }
 
