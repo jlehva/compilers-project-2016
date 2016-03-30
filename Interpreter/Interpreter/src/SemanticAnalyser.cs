@@ -7,13 +7,11 @@ namespace Interpreter
     {
         public Dictionary<string, Symbol> SymbolTable { get; private set; }
         public Stack<Node> OperandStack { get; private set; }
-        public Stack<Node> NodeStack { get; private set; }
         public Stack<string> TypeStack { get; private set; }
 
         public SemanticAnalyser ()
         {
             SymbolTable = new Dictionary<string, Symbol> ();
-            NodeStack = new Stack<Node> ();
             TypeStack = new Stack<string> ();
         }
 
@@ -22,10 +20,6 @@ namespace Interpreter
             program.Accept (this);
 
             System.Console.WriteLine ("- - - - - - - - - - - - - - - - - - - - -");
-            System.Console.WriteLine ("NodeStack:");
-            foreach (Node node in NodeStack) {
-                System.Console.WriteLine (node.Name);
-            }
             System.Console.WriteLine ("TypeStack:");
             foreach (string type in TypeStack) {
                 System.Console.WriteLine (type);
@@ -81,11 +75,6 @@ namespace Interpreter
             VisitChildren (node);
         }
 
-        public void Visit (IdentifierNameStmt node)
-        {
-            VisitChildren (node);
-        }
-
         public void Visit (PrintStmt node)
         {
             VisitChildren (node);
@@ -98,12 +87,6 @@ namespace Interpreter
 
         public void Visit (VarDeclStmt node)
         {
-            System.Console.WriteLine ("- - - - - - Visit VarDeclStmt");
-            System.Console.WriteLine (node.Name);
-            System.Console.WriteLine (node.Children.Count);
-            System.Console.WriteLine (node.Children[0].Name);
-            System.Console.WriteLine (node.Children[1].Name);
-            // System.Console.WriteLine (node.Children[2].Name);
             string name = node.Children [0].Name;
 
             if (SymbolTable.ContainsKey (name)) {
@@ -137,16 +120,34 @@ namespace Interpreter
         public void Visit (ArithmeticExpr node)
         {
             VisitChildren (node);
+            OnlyIntValuesInExpression (node);
+        }
 
-            string type1 = TypeStack.Pop ();
-            string type2 = TypeStack.Pop ();
+        public void Visit (Expression node)
+        {
+            VisitChildren (node);
+        }
 
-            if (type1 != "Int" || type2 != "Int") {
-                throw new SemanticError ("Semantic error: Operator " + node.Name + " can only be applied to Integers, not " +
-                type1 + " " + node.Name + " " + type2 + ", on row " + node.Children [0].Row);
-            } else {
-                TypeStack.Push ("Int"); // "Int op Int" results to new Int in the stack
-            }
+        public void Visit (LogicalExpr node)
+        {
+            System.Console.WriteLine ("Visit LogicalExpr");
+            VisitChildren (node);
+        }
+
+        public void Visit (NotExpr node)
+        {
+            VisitChildren (node);
+        }
+
+        public void Visit (RelationalExpr node)
+        {
+            VisitChildren (node);
+            OnlyIntValuesInExpression (node);
+        }
+
+        public void Visit (IdentifierNameStmt node)
+        {
+            VisitChildren (node);
         }
 
         public void Visit (BoolValueExpr node)
@@ -155,9 +156,9 @@ namespace Interpreter
             VisitChildren (node);
         }
 
-        public void Visit (Expression node)
+        public void Visit (StringValueExpr node)
         {
-            VisitChildren (node);
+            TypeStack.Push ("String");
         }
 
         public void Visit (IdentifierValueExpr node)
@@ -172,46 +173,28 @@ namespace Interpreter
             VisitChildren (node);
         }
 
-        public void Visit (LogicalExpr node)
-        {
-            System.Console.WriteLine ("Visit LogicalExpr");
-            VisitChildren (node);
-        }
-
-        public void Visit (NotExpr node)
-        {
-            System.Console.WriteLine ("Visit NotExpr");
-            VisitChildren (node);
-        }
-
-        public void Visit (RelationalExpr node)
-        {
-            System.Console.WriteLine ("Visit RelationalExpr");
-            VisitChildren (node);
-        }
-
-        public void Visit (StringValueExpr node)
-        {
-            TypeStack.Push ("String");
-            VisitChildren (node);
-        }
-
         public void Visit (BoolType node)
         {
-            System.Console.WriteLine ("Visit BoolType");
-            VisitChildren (node);
         }
 
         public void Visit (IntType node)
         {
-            System.Console.WriteLine ("Visit IntType");
-            VisitChildren (node);
         }
 
         public void Visit (StringType node)
         {
-            System.Console.WriteLine ("Visit StringType");
-            VisitChildren (node);
+        }
+
+        public void OnlyIntValuesInExpression(Node node) {
+            string type1 = TypeStack.Pop ();
+            string type2 = TypeStack.Pop ();
+
+            if (type1 != "Int" || type2 != "Int") {
+                throw new SemanticError ("Semantic error: Operator " + node.Name + " can only be applied to Integers, not " +
+                    type1 + " " + node.Name + " " + type2 + ", on row " + node.Children [0].Row);
+            } else {
+                TypeStack.Push ("Int"); // "Int op Int" results to new Int in the stack
+            }
         }
     }
 }

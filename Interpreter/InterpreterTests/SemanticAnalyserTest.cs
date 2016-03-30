@@ -67,6 +67,25 @@ namespace InterpreterTests
                 Assert.Fail ("Wrong exception: " + e.Message);
             }
         }
+
+        [Test ()]
+        public void TestRelationalExpressionOnlyForIntValues () {
+            // if relational expression, then both of the operands must be integers
+            string app = "print \"error\" < 5;";
+            Parser parser = new Parser (new Scanner (app));
+            Program prog = parser.Parse ();
+            SemanticAnalyser semanticAnalyser = new SemanticAnalyser ();
+
+            try {
+                semanticAnalyser.Run (prog);
+                Assert.Fail();
+            } catch (SemanticError error) {
+                // this is what we want
+                Assert.Pass (error.Message);
+            } catch (Exception e) {
+                Assert.Fail ("Wrong exception: " + e.Message);
+            }
+        }
     }
 }
 
