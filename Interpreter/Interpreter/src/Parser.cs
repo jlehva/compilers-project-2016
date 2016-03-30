@@ -142,6 +142,7 @@ namespace Interpreter
             
         private Expression Expr ()
         {
+            Expression expr = new Expression ("expr", currentToken.Row);
             if ((Token.Types)currentToken.Type == Token.Types.LeftParenthesis ||
                 (Token.Types)currentToken.Type == Token.Types.IntLiteral ||
                 (Token.Types)currentToken.Type == Token.Types.StringLiteral ||
@@ -153,9 +154,11 @@ namespace Interpreter
 
                 if (right.Name != null) {
                     right.AddChild (left);
-                    return right;
+                    expr.AddChild (right);
+                    return expr;
                 } else {
-                    return left;
+                    expr.AddChild (left);
+                    return expr;
                 }
             } else if ((Token.Types)currentToken.Type == Token.Types.Not) {
                 NotExpr notExpr = new NotExpr ("!", currentToken.Row);

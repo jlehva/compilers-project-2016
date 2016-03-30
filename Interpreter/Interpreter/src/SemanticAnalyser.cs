@@ -67,17 +67,45 @@ namespace Interpreter
                 throw new SemanticError ("Semantic error: Symbol with name " + name + " needs to be declared before use, on row: " + node.Children [0].Row);
             }
             // todo: check if the assigned expression is of the same type as the variable in symbol table
-            VisitChildren (node);
+            VisitChildren (node.Children [1]);
         }
 
         public void Visit (ForStmt node)
         {
-            VisitChildren (node);
+            Node identifierNameStmt = node.Children [0];
+            Node startExpr = node.Children [1];
+            Node endExpr = node.Children [2];
+            Node statements = node.Children [3];
+
+            if (!SymbolTable.ContainsKey (identifierNameStmt.Name)) {
+                throw new SemanticError ("Semantic error: Symbol " + identifierNameStmt.Name + " needs to be declared before use, on row: " + identifierNameStmt.Row);
+            }
+                
+            VisitChildren (startExpr);
+            string type = TypeStack.Pop ();
+            if (type != "Int") {
+                throw new SemanticError ("Semantic error: For range needs to start with int value, not with " + type + ", on row: " + startExpr.Row);
+            }
+
+            VisitChildren (endExpr);
+            type = TypeStack.Pop ();
+            if (type != "Int") {
+                throw new SemanticError ("Semantic error: For range needs to start with int value, not with " + type + ", on row: " + startExpr.Row);
+            }
+
+            VisitChildren (statements);
+            TypeStack = new Stack<string> (); // clean the stack as there's no use for the type value(s) at this point
+            System.Console.WriteLine ("TypeStack after visiting For statements, size: " + TypeStack.Count);
         }
 
         public void Visit (PrintStmt node)
         {
             VisitChildren (node);
+            string type = TypeStack.Pop ();
+            if (type != "Int" && type != "String") {
+                throw new SemanticError ("Semantic error: Only String or Int values can be printed (tried to print value of type " +
+                    type + ", on row: " + node.Children [0].Row);
+            }
         }
 
         public void Visit (ReadStmt node)
@@ -104,21 +132,25 @@ namespace Interpreter
             } else {
                 value = null;
             }
-
+            System.Console.WriteLine ("TypeStack should be empty to begin with: " + TypeStack.Count);
             if (node.Children.Count == 3) {
+                System.Console.WriteLine ("who is this: " + node.Children [2].Name);
                 VisitChildren(node.Children [2]);
-                if (TypeStack.Pop () != type) {
+                System.Console.WriteLine ("TypeStack after visiting expression " + TypeStack.Count);
+                string typeFromStack = TypeStack.Pop ();
+                if (typeFromStack != type) {
                     throw new SemanticError ("Semantic error: Expression value assigned for " + name + 
                         " was not the same type of " + type + ", on row: " + node.Children [0].Row);
                 }
             }
-
+            System.Console.WriteLine ("TypeStack should be empty: " + TypeStack.Count);
             SymbolTable.Add (name, new Symbol(name, type, value));
-            VisitChildren (node);
+            // VisitChildren (node);
         }
 
         public void Visit (ArithmeticExpr node)
         {
+            System.Console.WriteLine ("Visit ArithmeticExpr " + node.Name);
             VisitChildren (node);
             OnlyIntValuesInExpression (node);
         }
@@ -141,6 +173,7 @@ namespace Interpreter
 
         public void Visit (RelationalExpr node)
         {
+            System.Console.WriteLine ("Visit RelationalExpr");
             VisitChildren (node);
             OnlyIntValuesInExpression (node);
         }
@@ -186,6 +219,7 @@ namespace Interpreter
         }
 
         public void OnlyIntValuesInExpression(Node node) {
+            System.Console.WriteLine ("Applying " + node.Name + " to TypeStack of size: " + TypeStack.Count);
             string type1 = TypeStack.Pop ();
             string type2 = TypeStack.Pop ();
 
@@ -194,6 +228,7 @@ namespace Interpreter
                     type1 + " " + node.Name + " " + type2 + ", on row " + node.Children [0].Row);
             } else {
                 TypeStack.Push ("Int"); // "Int op Int" results to new Int in the stack
+                System.Console.WriteLine ("pushed value to TypeStack, size now: " + TypeStack.Count);
             }
         }
     }
