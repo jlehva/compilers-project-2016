@@ -10,7 +10,8 @@ namespace Interpreter
             var filePath = args [0];
             StreamReader charStream = File.OpenText (filePath);
             Parser parser = new Parser (new Scanner (charStream));
-            parser.Parse ();
+            Program program = parser.Parse ();
+            SemanticAnalyser semanticAnalyser = new SemanticAnalyser ();
         }
     }
 }

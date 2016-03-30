@@ -51,7 +51,6 @@ namespace Interpreter
         // used for tests
         public Scanner (string input)
         {
-            System.Console.WriteLine (input);
             byte[] byteArray = Encoding.UTF8.GetBytes (input);
             MemoryStream stream = new MemoryStream (byteArray);
             StreamReader charStream = new StreamReader (stream);

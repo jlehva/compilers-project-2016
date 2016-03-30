@@ -60,12 +60,14 @@
     <Compile Include="src\Ast\expr\IdentifierValueExpr.cs" />
     <Compile Include="src\Ast\expr\LogicalExpr.cs" />
     <Compile Include="src\Ast\expr\RelationalExpr.cs" />
-    <Compile Include="src\Ast\stmt\VarStmt.cs" />
     <Compile Include="src\Ast\stmt\ReadStmt.cs" />
     <Compile Include="src\Ast\stmt\PrintStmt.cs" />
     <Compile Include="src\Ast\stmt\AssertStmt.cs" />
     <Compile Include="src\Ast\expr\ArithmeticExpr.cs" />
     <Compile Include="src\Ast\stmt\IdentifierNameStmt.cs" />
+    <Compile Include="src\NodeVisitor.cs" />
+    <Compile Include="src\Symbol.cs" />
+    <Compile Include="src\SemanticAnalyser.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
