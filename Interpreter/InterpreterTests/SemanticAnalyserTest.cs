@@ -162,6 +162,31 @@ namespace InterpreterTests
             semanticAnalyser.Run (prog);
             Assert.AreEqual (0, semanticAnalyser.TypeStack.Count);
         }
+
+        [Test ()]
+        public void TestRangeContainsString () {
+            // if relational expression, then both of the operands must be integers
+            string app = 
+                "var n : string := \"SEMANTIC ERROR\";\n" +
+                "var v : int := 1;\n" +
+                "var i : int;\n" +
+                "for i in 1..n do\n" +
+                "v := v * i;\n" +
+                "end for;\n";
+            Parser parser = new Parser (new Scanner (app));
+            Program prog = parser.Parse ();
+            SemanticAnalyser semanticAnalyser = new SemanticAnalyser ();
+
+            try {
+                semanticAnalyser.Run (prog);
+                Assert.Fail();
+            } catch (SemanticError error) {
+                // this is what we want
+                Assert.Pass (error.Message);
+            } catch (Exception e) {
+                Assert.Fail ("Wrong exception: " + e.Message);
+            }
+        }
     }
 }
 
