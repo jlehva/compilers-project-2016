@@ -28,11 +28,7 @@ namespace InterpreterTests
                 "print X;";
             Parser parser = new Parser (new Scanner (app));
             Program prog = parser.Parse ();
-            //foreach (Exception e in parser.GetErrors()) {
-            //    System.Console.WriteLine (e.Message);
-            //}
             Assert.AreEqual (0, parser.GetErrors ().Count);
-            // prog.Print ();
         }
 
         [Test ()]
@@ -48,9 +44,8 @@ namespace InterpreterTests
                 "end for;\n" +
                 "assert (x = nTimes);\n";
             Parser parser = new Parser (new Scanner (app));
-            Program prog = parser.Parse ();
+            parser.Parse ();
             Assert.AreEqual (0, parser.GetErrors ().Count);
-            // prog.Print ();
         }
 
         [Test ()]
@@ -67,60 +62,50 @@ namespace InterpreterTests
                 "print \"The result is: \";\n" +
                 "print v;";
             Parser parser = new Parser (new Scanner (app));
-            Program prog = parser.Parse ();
+            parser.Parse ();
             Assert.AreEqual (0, parser.GetErrors ().Count);
-
         }
 
         [Test ()]
-        public void TestVarDeclStmtAst() {
-            string app = "var n : int;";
+        public void TestParserFindsTwoLexicalErrors() {
+            string app = 
+                "print \"Give a number\n" +
+                "var n : int;\n" +
+                "read n;\n" +
+                "var v : int := 1;\n" +
+                "var i : int;\n" +
+                "for i in 1..n do\n" + 
+                "v := v * i;\n" +
+                "end for;\n" +
+                "print \"The result is: \";\n" +
+                "\"foo=";
             Parser parser = new Parser (new Scanner (app));
-            Program prog = parser.Parse ();
-            // VarDeclStmt stmt = (VarDeclStmt)prog.Statements.Left;
-            // VarDeclStmt expected = new VarDeclStmt (new IntType (1), "n", 1);
-            // Assert.AreEqual (stmt.Name, expected.Name);
-            // Assert.AreEqual (stmt.Type.ToString (), expected.Type.ToString ());
-            // Assert.AreEqual (stmt.Row, expected.Row);
-            // VarDeclStmt varDeclStmt = 
-            // Assert.AreEqual (prog.Statements.Right.Left, null);
-            // Assert.AreEqual (prog.Statements.Right.Right, null);
+            parser.Parse ();
+            Assert.AreEqual (2, parser.GetErrors ().Count);
+            foreach (Exception error in parser.GetErrors ()) {
+                Assert.AreEqual (typeof(LexicalError), error.GetType ());
+            }
         }
 
         [Test ()]
-        public void TestAssignmentStmttAst() {
-            string app = "var v : int := 1;";
+        public void TestParserFindsTwoSyntaxErrors() {
+            string app = 
+                "print \"Give a number\"\n" +
+                "var n  int;\n" +
+                "read n;\n" +
+                "var v : int := 1;\n" +
+                "var i : int;\n" +
+                "for i in 1..n do\n" +
+                "v : v * i;\n" +
+                "end for;\n" +
+                "print \"The result is: \";\n" +
+                "print v;";
             Parser parser = new Parser (new Scanner (app));
-            Program prog = parser.Parse ();
-            // VarDeclStmt stmt = (VarDeclStmt)prog.Statements.Left;
-            // VarDeclStmt varDeclStmt = new VarDeclStmt (new IntType (1), "v", 1);
-            // AssignmentStmt assignmentStmt = new AssignmentStmt (varDeclStmt, );
-            // Assert.AreEqual (stmt.Name, expected.Name);
-            //Assert.AreEqual (stmt.Type.ToString (), expected.Type.ToString ());
-            //Assert.AreEqual (stmt.Row, expected.Row);
-        }
-
-        [Test ()]
-        public void TestStringExpressionAst() {
-            string app = "print 1 + (2 + 3);";
-            Parser parser = new Parser (new Scanner (app));
-            Program prog = parser.Parse ();
-            // Assert.NotNull (prog.Statements.Left); // Statement
-            // Assert.IsNull (prog.Statements.Right); // Statements / tail
-            // Assert.AreEqual (prog.Statements.Left.Left);
-            // prog.Print ();
-        }
-
-        [Test ()]
-        public void TestStringExpressionAsd() {
-            string app = "print 1 * 2 + 5 - 7 * 5 + 6 + 9 / 3 * 4 / 5;";
-            System.Console.WriteLine (app);
-            Parser parser = new Parser (new Scanner (app));
-            Program prog = parser.Parse ();
-            // Assert.NotNull (prog.Statements.Left); // Statement
-            // Assert.IsNull (prog.Statements.Right); // Statements / tail
-            // Assert.AreEqual (prog.Statements.Left.Left);
-            // prog.Print ();
+            parser.Parse ();
+            Assert.AreEqual (2, parser.GetErrors ().Count);
+            foreach (Exception error in parser.GetErrors ()) {
+                Assert.AreEqual (typeof(SyntaxError), error.GetType ());
+            }
         }
 
         [Test ()]
@@ -136,19 +121,22 @@ namespace InterpreterTests
                 "end for;\n" +
                 "print \"The result is: \";\n" +
                 "print v;";
-            app = "print 1 * 2 + 5 - 7 * 5 + 6 + 9 / 3 * 4 / 5;";
-            app = "print (1 * 2) + 5 - (7 * 5) + 6 + ((9 / 3) * 4) / 5;";
+            app = "var X : int := 4 + (6 * 2);\n" +
+                "print X;";
+            // app = "print 1 * 2 + 5 - 7 * 5 + 6 + 9 / 3 * 4 / 5;";
+            // app = "print (1 * 2) + 5 - (7 * 5) + 6 + ((9 / 3) * 4) / 5;";
             // app = "print 1 * 2 * 5 * 7 * 5 * 6 * 9 * 3 * 4 * 5;";
             // app = "print 0 + 1 * 2 + 3 * 4 + 5 * 6;";
-            app = "print 1 * 2 & 2 - 5 * 5;";
+            // app = "print 1 * 2 & 2 - 5 * 5;";
             // app = "print 1 = 5 < 5;";
             // app = "print 1 + 2;";
-            app = "print 1 + 2;";
-            System.Console.WriteLine (app);
+            // app = "print 1 + 2;";
+
+            // System.Console.WriteLine (app);
             Parser parser = new Parser (new Scanner (app));
             Program prog = parser.Parse ();
-            prog.Print ();
-            SemanticAnalyser semanticAnalyser = new SemanticAnalyser ();
+            // prog.Print ();
+            // SemanticAnalyser semanticAnalyser = new SemanticAnalyser ();
             // semanticAnalyser.Run (prog);
         }
     }

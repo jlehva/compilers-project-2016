@@ -127,6 +127,10 @@ namespace Interpreter
                     return new Token (_currentRow, _currentTokenColumn, lexeme, Token.Types.ERROR);
                 } 
 
+                if (isEndOfLine (currentChar)) {
+                    return new Token (_currentRow, _currentTokenColumn, lexeme, Token.Types.ERROR);
+                }
+
                 if ((char)currentChar == '\\') {
                     if (isEndOfSource (peekNextChar ())) {
                         return new Token (_currentRow, _currentTokenColumn, lexeme, Token.Types.ERROR);

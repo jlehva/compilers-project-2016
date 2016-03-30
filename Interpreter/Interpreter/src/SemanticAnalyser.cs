@@ -7,32 +7,21 @@ namespace Interpreter
     {
         public Dictionary<string, Symbol> SymbolTable { get; private set; }
         public Stack<Node> OperandStack { get; private set; }
-        public Stack<Node> NodeStack { get; private set; }
+        public Stack<string> TypeStack { get; private set; }
 
         public SemanticAnalyser ()
         {
             SymbolTable = new Dictionary<string, Symbol> ();
-            NodeStack = new Stack<Node> ();
+            TypeStack = new Stack<string> ();
         }
 
         public void Run (Program program)
         {
             program.Accept (this);
-
-            System.Console.WriteLine ("- - - - - - - - - - - - - - - - - - - - -");
-            System.Console.WriteLine ("NodeStack:");
-            foreach (Node node in NodeStack) {
-                System.Console.WriteLine (node.Name);
-            }
-            System.Console.WriteLine ("POPPING:");
-            foreach (Node node in NodeStack) {
-                System.Console.WriteLine (NodeStack.Pop ().Name);
-            }
         }
 
         public void VisitChildren (Node node)
         {
-            System.Console.WriteLine (node.GetType ());
             for (int i = 0; i < node.Children.Count - 1; i++) {
                 node.Children[i].Accept (this);
             }
@@ -42,159 +31,253 @@ namespace Interpreter
             }
         }
 
-        public void Visit (Node node)
-        {
-            System.Console.WriteLine ("Visit Node");
-        }
+        public void Visit (Node node) {}
 
         public void Visit (Program node)
         {
-            System.Console.WriteLine ("Visit Program");
             VisitChildren (node);
         }
 
         public void Visit(Stmts node)
         {
-            System.Console.WriteLine ("Visit Stmts");
             VisitChildren (node);
         }
 
         public void Visit (AssertStmt node)
         {
-            System.Console.WriteLine ("Visit AssertStmt DO STUFF");
-            VisitChildren (node);
+            VisitChildren (node.Children [0]);
+            string type = TypeStack.Pop ();
+            if (type != "Bool") {
+                throw new SemanticError ("Semantic error: Assert must be applied to expression that " +
+                    "evaluates to Bool. Expression on row " + node.Row + " evaluates to: " + type);
+            }
         }
 
         public void Visit (AssignmentStmt node)
         {
-            System.Console.WriteLine ("Visit AssignmentStmt DO STUFF");
-            VisitChildren (node);
+            string name = node.Children [0].Name;
+
+            if (!SymbolTable.ContainsKey (name)) {
+                throw new SemanticError ("Semantic error: Symbol with name " + name + 
+                    " needs to be declared before use, on row: " + node.Children [0].Row);
+            }
+
+            // check if the assigned expression is of the same type as the variable in symbol table
+            VisitChildren (node.Children [1]);
+            string type = TypeStack.Pop ();
+
+            if (type != SymbolTable [name].Type) {
+                throw new SemanticError ("Semantic error: Symbol " + name + " of type " + SymbolTable [name].Type + 
+                    " can not be assigned a value of type " + type + ", on row: " + node.Children [0].Row);
+            }
         }
 
         public void Visit (ForStmt node)
         {
-            System.Console.WriteLine ("Visit ForStmt DO STUFF");
-            VisitChildren (node);
-        }
+            Node identifierNameStmt = node.Children [0];
+            Node startExpr = node.Children [1];
+            Node endExpr = node.Children [2];
+            Node statements = node.Children [3];
 
-        public void Visit (IdentifierNameStmt node)
-        {
-            System.Console.WriteLine ("Visit IdentifierNameStmt DO STUFF");
-            VisitChildren (node);
+            if (!SymbolTable.ContainsKey (identifierNameStmt.Name)) {
+                throw new SemanticError ("Semantic error: Symbol " + identifierNameStmt.Name + 
+                    " needs to be declared before use, on row: " + identifierNameStmt.Row);
+            }
+                
+            VisitChildren (startExpr);
+            string type = TypeStack.Pop ();
+            if (type != "Int") {
+                throw new SemanticError ("Semantic error: For range needs to start with int value, not with " + 
+                    type + ", on row: " + startExpr.Row);
+            }
+
+            VisitChildren (endExpr);
+            type = TypeStack.Pop ();
+            if (type != "Int") {
+                throw new SemanticError ("Semantic error: For range needs to start with int value, not with " + 
+                    type + ", on row: " + startExpr.Row);
+            }
+
+            VisitChildren (statements);
+            TypeStack = new Stack<string> (); // clean the stack as there's no use for the type value(s) at this point
         }
 
         public void Visit (PrintStmt node)
         {
-            System.Console.WriteLine ("Visit PrintStmt DO STUFF");
-            // NodeStack.Push (node);
             VisitChildren (node);
+            string type = TypeStack.Pop ();
+            if (type != "Int" && type != "String") {
+                throw new SemanticError ("Semantic error: Only String or Int values can be printed " +
+                    "(tried to print value of type type + , on row: " + node.Children [0].Row);
+            }
         }
 
         public void Visit (ReadStmt node)
         {
-            System.Console.WriteLine ("Visit ReadStmt DO STUFF");
-            // NodeStack.Push (node);
-            VisitChildren (node);
+            if (!SymbolTable.ContainsKey (node.Children [0].Name)) {
+                throw new SemanticError ("Semantic error: Symbol " + node.Children [0].Name + " must be declared" +
+                    " before value can be assigned for it , on row: " + node.Children [0].Row);
+            }
         }
 
         public void Visit (VarDeclStmt node)
         {
-            System.Console.WriteLine ("Visit VarDeclStmt DO STUFF");
-            // NodeStack.Push (node);
-            VisitChildren (node);
+            string name = node.Children [0].Name;
+
+            if (SymbolTable.ContainsKey (name)) {
+                throw new SemanticError ("Semantic error: Symbol with name " + name + " already exists, on row: " +
+                    node.Children [0].Row);
+            }
+
+            string type = node.Children [1].Name;
+            string value;
+
+            //  If not explicitly initialized, variables are assigned an appropriate default value.
+            if (type == "Int") {
+                value = "0";
+            } else if (type == "Bool") {
+                value = "false";
+            } else {
+                value = null;
+            }
+
+            if (node.Children.Count == 3) {
+                VisitChildren(node.Children [2]);
+                string typeFromStack = TypeStack.Pop ();
+
+                if (typeFromStack != type) {
+                    throw new SemanticError ("Semantic error: Expression value assigned for " + name + 
+                        " was not the same type of " + type + ", on row: " + node.Children [0].Row);
+                }
+            }
+
+            SymbolTable.Add (name, new Symbol(name, type, value));
         }
 
         public void Visit (ArithmeticExpr node)
         {
-            System.Console.WriteLine ("Visit ArithmeticExpr DO STUFF");
-            if (node.Name != null) {
-                NodeStack.Push (node);
-            }
             VisitChildren (node);
-        }
-
-        public void Visit (BoolValueExpr node)
-        {
-            System.Console.WriteLine ("Visit BoolValueExpr DO STUFF");
-            NodeStack.Push (node);
-            VisitChildren (node);
+            ApplyOperatorToOperands (node);
         }
 
         public void Visit (Expression node)
         {
-            System.Console.WriteLine ("Visit Expression DO STUFF");
-            VisitChildren (node);
-            // evaluate stack
-        }
-
-        public void Visit (IdentifierValueExpr node)
-        {
-            System.Console.WriteLine ("Visit IdentifierValueExpr");
-            NodeStack.Push (node);
-            VisitChildren (node);
-        }
-
-        public void Visit (IntValueExpr node)
-        {
-            System.Console.WriteLine ("Visit IntValueExpr " + node.Name);
-            //f (node.Name != null) {
-            NodeStack.Push (node);
-            // }
-                
             VisitChildren (node);
         }
 
         public void Visit (LogicalExpr node)
         {
-            System.Console.WriteLine ("Visit LogicalExpr");
-            if (node.Name != null) {
-                NodeStack.Push (node);
-            }
             VisitChildren (node);
+            ApplyOperatorToOperands (node);
         }
 
         public void Visit (NotExpr node)
         {
-            System.Console.WriteLine ("Visit NotExpr");
-            if (node.Name != null) {
-                NodeStack.Push (node);
+            VisitChildren (node.Children [0]);
+            string type = TypeStack.Pop ();
+            if (type != "Bool") {
+                throw new SemanticError ("Semantic error: Operator " + node.Name + " can not be applied to operand of type: " +
+                    type + ", on row " + node.Row);
             }
-            VisitChildren (node);
         }
 
         public void Visit (RelationalExpr node)
         {
-            System.Console.WriteLine ("Visit RelationalExpr");
-            if (node.Name != null) {
-                NodeStack.Push (node);
-            }
+            VisitChildren (node);
+            ApplyOperatorToOperands (node);
+        }
+
+        public void Visit (IdentifierNameStmt node)
+        {
+            VisitChildren (node);
+        }
+
+        public void Visit (BoolValueExpr node)
+        {
+            TypeStack.Push ("Bool");
             VisitChildren (node);
         }
 
         public void Visit (StringValueExpr node)
         {
-            System.Console.WriteLine ("Visit StringValueExpr");
-            NodeStack.Push (node);
+            TypeStack.Push ("String");
             VisitChildren (node);
         }
 
-        public void Visit (BoolType node)
+        public void Visit (IdentifierValueExpr node)
         {
-            System.Console.WriteLine ("Visit BoolType");
+            TypeStack.Push (SymbolTable[node.Name].Type);
             VisitChildren (node);
         }
 
-        public void Visit (IntType node)
-        {
-            System.Console.WriteLine ("Visit IntType");
+        public void Visit (IntValueExpr node)
+        {               
+            TypeStack.Push ("Int");
             VisitChildren (node);
         }
 
-        public void Visit (StringType node)
-        {
-            System.Console.WriteLine ("Visit StringType");
-            VisitChildren (node);
+        public void Visit (BoolType node) {}
+
+        public void Visit (IntType node) {}
+
+        public void Visit (StringType node) {}
+
+        public void ApplyOperatorToOperands(Node node) {
+            string type1 = TypeStack.Pop ();
+            string type2 = TypeStack.Pop ();
+
+            switch (node.Name) {
+                case "+":
+                    if (type1 == "String" && type2 == "String") {
+                        TypeStack.Push ("String");
+                    } else {
+                        ApplyToIntOperands (type1, type2, node);
+                    }
+                    return;
+                case "-":
+                    ApplyToIntOperands (type1, type2, node);
+                    return;
+                case "*":
+                    ApplyToIntOperands (type1, type2, node);
+                    return;
+                case "/":
+                    ApplyToIntOperands (type1, type2, node);
+                    return;
+                case "=":
+                    if (type1 == type2) {
+                        TypeStack.Push ("Bool");
+                    } else {
+                        throwOperatorError (type1, type2, node);
+                    }
+                    return;
+                case "<":
+                    if (type1 == type2) {
+                        TypeStack.Push ("Bool");
+                    } else {
+                        throwOperatorError (type1, type2, node);
+                    }
+                    return;
+                case "&":
+                    if (type1 == "Bool" && type2 == "Bool") {
+                        TypeStack.Push ("Bool");
+                    } else {
+                        throwOperatorError (type1, type2, node);
+                    }
+                    return;
+            }
+        }
+
+        public void ApplyToIntOperands(string type1, string type2, Node node) {
+            if (type1 == "Int" && type2 == "Int") {
+                TypeStack.Push ("Int"); // "Int op Int" results to new Int in the stack
+            } else {
+                throwOperatorError (type1, type2, node);
+            }
+        }
+            
+        public void throwOperatorError(string type1, string type2, Node node) {
+            throw new SemanticError ("Semantic error: Operator " + node.Name + " can not be applied to operands of types: " +
+                type1 + " & " + type2 + ", on row " + node.Children [0].Row);
         }
     }
 }
-
