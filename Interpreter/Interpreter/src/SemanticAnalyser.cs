@@ -48,8 +48,8 @@ namespace Interpreter
             VisitChildren (node.Children [0]);
             string type = TypeStack.Pop ();
             if (type != "Bool") {
-                throw new SemanticError ("Semantic error: Assert must be applied to expression that evaluates to Bool. Expression " +
-                    "on row " + node.Row + " evaluates to: " + type);
+                throw new SemanticError ("Semantic error: Assert must be applied to expression that " +
+                    "evaluates to Bool. Expression on row " + node.Row + " evaluates to: " + type);
             }
         }
 
@@ -58,7 +58,8 @@ namespace Interpreter
             string name = node.Children [0].Name;
 
             if (!SymbolTable.ContainsKey (name)) {
-                throw new SemanticError ("Semantic error: Symbol with name " + name + " needs to be declared before use, on row: " + node.Children [0].Row);
+                throw new SemanticError ("Semantic error: Symbol with name " + name + 
+                    " needs to be declared before use, on row: " + node.Children [0].Row);
             }
 
             // check if the assigned expression is of the same type as the variable in symbol table
@@ -79,19 +80,22 @@ namespace Interpreter
             Node statements = node.Children [3];
 
             if (!SymbolTable.ContainsKey (identifierNameStmt.Name)) {
-                throw new SemanticError ("Semantic error: Symbol " + identifierNameStmt.Name + " needs to be declared before use, on row: " + identifierNameStmt.Row);
+                throw new SemanticError ("Semantic error: Symbol " + identifierNameStmt.Name + 
+                    " needs to be declared before use, on row: " + identifierNameStmt.Row);
             }
                 
             VisitChildren (startExpr);
             string type = TypeStack.Pop ();
             if (type != "Int") {
-                throw new SemanticError ("Semantic error: For range needs to start with int value, not with " + type + ", on row: " + startExpr.Row);
+                throw new SemanticError ("Semantic error: For range needs to start with int value, not with " + 
+                    type + ", on row: " + startExpr.Row);
             }
 
             VisitChildren (endExpr);
             type = TypeStack.Pop ();
             if (type != "Int") {
-                throw new SemanticError ("Semantic error: For range needs to start with int value, not with " + type + ", on row: " + startExpr.Row);
+                throw new SemanticError ("Semantic error: For range needs to start with int value, not with " + 
+                    type + ", on row: " + startExpr.Row);
             }
 
             VisitChildren (statements);
@@ -103,16 +107,16 @@ namespace Interpreter
             VisitChildren (node);
             string type = TypeStack.Pop ();
             if (type != "Int" && type != "String") {
-                throw new SemanticError ("Semantic error: Only String or Int values can be printed (tried to print value of type " +
-                    type + ", on row: " + node.Children [0].Row);
+                throw new SemanticError ("Semantic error: Only String or Int values can be printed " +
+                    "(tried to print value of type type + ", on row: " + node.Children [0].Row);
             }
         }
 
         public void Visit (ReadStmt node)
         {
             if (!SymbolTable.ContainsKey (node.Children [0].Name)) {
-                throw new SemanticError ("Semantic error: Symbol " + node.Children [0].Name + " must be declared before value " +
-                    "can be assigned for it , on row: " + node.Children [0].Row);
+                throw new SemanticError ("Semantic error: Symbol " + node.Children [0].Name + " must be declared" +
+                    " before value can be assigned for it , on row: " + node.Children [0].Row);
             }
         }
 
@@ -121,7 +125,8 @@ namespace Interpreter
             string name = node.Children [0].Name;
 
             if (SymbolTable.ContainsKey (name)) {
-                throw new SemanticError ("Semantic error: Symbol with name " + name + " already exists, on row: " + node.Children [0].Row);
+                throw new SemanticError ("Semantic error: Symbol with name " + name + " already exists, on row: " +
+                    node.Children [0].Row);
             }
 
             string type = node.Children [1].Name;
