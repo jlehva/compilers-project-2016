@@ -141,6 +141,7 @@ namespace Interpreter
                 VisitChildren(node.Children [2]);
                 System.Console.WriteLine ("TypeStack after visiting expression " + TypeStack.Count);
                 string typeFromStack = TypeStack.Pop ();
+                System.Console.WriteLine (typeFromStack);
                 if (typeFromStack != type) {
                     throw new SemanticError ("Semantic error: Expression value assigned for " + name + 
                         " was not the same type of " + type + ", on row: " + node.Children [0].Row);
@@ -155,7 +156,7 @@ namespace Interpreter
         {
             System.Console.WriteLine ("Visit ArithmeticExpr " + node.Name);
             VisitChildren (node);
-            OnlyIntValuesInExpression (node);
+            ApplyOperatorToOperands (node);
         }
 
         public void Visit (Expression node)
@@ -167,6 +168,7 @@ namespace Interpreter
         {
             System.Console.WriteLine ("Visit LogicalExpr");
             VisitChildren (node);
+            ApplyOperatorToOperands (node);
         }
 
         public void Visit (NotExpr node)
@@ -178,7 +180,7 @@ namespace Interpreter
         {
             System.Console.WriteLine ("Visit RelationalExpr");
             VisitChildren (node);
-            OnlyIntValuesInExpression (node);
+            ApplyOperatorToOperands (node);
         }
 
         public void Visit (IdentifierNameStmt node)
@@ -195,6 +197,7 @@ namespace Interpreter
         public void Visit (StringValueExpr node)
         {
             TypeStack.Push ("String");
+            VisitChildren (node);
         }
 
         public void Visit (IdentifierValueExpr node)
@@ -221,18 +224,64 @@ namespace Interpreter
         {
         }
 
-        public void OnlyIntValuesInExpression(Node node) {
+        public void ApplyOperatorToOperands(Node node) {
             System.Console.WriteLine ("Applying " + node.Name + " to TypeStack of size: " + TypeStack.Count);
             string type1 = TypeStack.Pop ();
             string type2 = TypeStack.Pop ();
 
-            if (type1 != "Int" || type2 != "Int") {
-                throw new SemanticError ("Semantic error: Operator " + node.Name + " can only be applied to Integers, not " +
-                    type1 + " " + node.Name + " " + type2 + ", on row " + node.Children [0].Row);
-            } else {
+            switch (node.Name) {
+                case "+":
+                    if (type1 == "String" && type2 == "String") {
+                        TypeStack.Push ("String");
+                    } else {
+                        ApplyToIntOperands (type1, type2, node);
+                    }
+                    return;
+                case "-":
+                    ApplyToIntOperands (type1, type2, node);
+                    return;
+                case "*":
+                    ApplyToIntOperands (type1, type2, node);
+                    return;
+                case "/":
+                    ApplyToIntOperands (type1, type2, node);
+                    return;
+                case "=":
+                    if (type1 == type2) {
+                        TypeStack.Push ("Bool");
+                    } else {
+                        throwOperatorError (type1, type2, node);
+                    }
+                    return;
+                case "<":
+                    if (type1 == type2) {
+                        TypeStack.Push ("Bool");
+                    } else {
+                        throwOperatorError (type1, type2, node);
+                    }
+                    return;
+                case "&":
+                    if (type1 == "Bool" && type2 == "Bool") {
+                        TypeStack.Push ("Bool");
+                    } else {
+                        throwOperatorError (type1, type2, node);
+                    }
+                    return;
+            }
+        }
+
+        public void ApplyToIntOperands(string type1, string type2, Node node) {
+            if (type1 == "Int" && type2 == "Int") {
                 TypeStack.Push ("Int"); // "Int op Int" results to new Int in the stack
                 System.Console.WriteLine ("pushed value to TypeStack, size now: " + TypeStack.Count);
+            } else {
+                throwOperatorError (type1, type2, node);
             }
+        }
+            
+        public void throwOperatorError(string type1, string type2, Node node) {
+            throw new SemanticError ("Semantic error: Operator " + node.Name + " can not be applied to operands of types: " +
+                type1 + " & " + type2 + ", on row " + node.Children [0].Row);
         }
     }
 }
