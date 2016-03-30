@@ -153,10 +153,7 @@ namespace Interpreter
 
                 if (right.Name != null) {
                     right.AddChild (left);
-                    // expression.AddChild (right);
                     return right;
-                    // right.AddChild (left);
-                    // return right;
                 } else {
                     return left;
                 }
@@ -180,16 +177,17 @@ namespace Interpreter
 
                 logicalExpr.AddChild (Conjuct ());
                 Expression expression = ExprLogical ();
+
                 if (expression.Name != null) {
                     logicalExpr.AddChild (expression);
                 }
-                // logicalExpr.AddChild (ExprLogical ());  
+
                 return logicalExpr;
             } else if ((Token.Types)currentToken.Type == Token.Types.RightParenthesis ||
                        (Token.Types)currentToken.Type == Token.Types.Range ||
                        (Token.Types)currentToken.Type == Token.Types.Do ||
                        (Token.Types)currentToken.Type == Token.Types.Semicolon) {
-                return new LogicalExpr(null, currentToken.Row); // TODO, return new logical expression instead?
+                return new LogicalExpr(null, currentToken.Row);
             }
                 
             throw new SyntaxError ("Syntax Error: invalid token to start expression " + currentToken.Type + " on row " +
@@ -206,12 +204,9 @@ namespace Interpreter
 
                 Expression left = ExprC ();
                 Expression right = ExprRelational ();
+
                 if (right.Name != null) {
                     right.AddChild (left);
-                    //expression.AddChild (right);
-                    //expression.Print ();
-                    //return expression;
-                    // right.AddChild (left);
                     return right;
                 } else {
                     return left;
@@ -239,10 +234,11 @@ namespace Interpreter
 
                 relationalExpr.AddChild (ExprC ());
                 Expression expression = ExprRelational ();
+
                 if (expression.Name != null) {
                     relationalExpr.AddChild (expression);
                 }
-                // relationalExpr.AddChild (ExprRelational ());
+
                 return relationalExpr;
             } else if ((Token.Types)currentToken.Type == Token.Types.And ||
                        (Token.Types)currentToken.Type == Token.Types.RightParenthesis ||
@@ -263,10 +259,10 @@ namespace Interpreter
                 (Token.Types)currentToken.Type == Token.Types.StringLiteral ||
                 (Token.Types)currentToken.Type == Token.Types.Identifier ||
                 (Token.Types)currentToken.Type == Token.Types.BoolLiteral) {
-                Expression expression = new Expression ("expr", currentToken.Row);
 
                 Expression left = Term ();
                 Expression right = ExprAdd ();
+
                 if (right.Name != null) {
                     right.AddChild (left); // this adds the third child to right if there's 1 + 2 + 3 (same operator many times in a row)
                     return right;
@@ -296,10 +292,11 @@ namespace Interpreter
 
                 arithmeticExpr.AddChild (Term ());
                 Expression expression = ExprAdd ();
+
                 if (expression.Name != null) {
                     arithmeticExpr.AddChild (expression);
                 }
-                // arithmeticExpr.AddChild (ExprAdd ());
+
                 return arithmeticExpr;
             } else if ((Token.Types)currentToken.Type == Token.Types.Equal ||
                        (Token.Types)currentToken.Type == Token.Types.Less ||
@@ -326,11 +323,11 @@ namespace Interpreter
 
                 Expression left = Factor ();
                 Expression right = ExprMult ();
+
                 if (right.Name != null) {
                     right.AddChild (left);
                     return right;
                 } else {
-                    left.Print ();
                     return left;
                 }
             }
@@ -469,7 +466,6 @@ namespace Interpreter
         private void ReadNextToken ()
         {
             currentToken = scanner.GetNextToken ();
-            System.Console.WriteLine (currentToken.Lexeme);
         }
 
         private void SkipToNextStatement ()

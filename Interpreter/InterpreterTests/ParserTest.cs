@@ -143,7 +143,7 @@ namespace InterpreterTests
             app = "print 1 * 2 & 2 - 5 * 5;";
             // app = "print 1 = 5 < 5;";
             // app = "print 1 + 2;";
-            // app = "print 1 + 2 + 3 + 4;";
+            app = "print 1 + 2;";
             System.Console.WriteLine (app);
             Parser parser = new Parser (new Scanner (app));
             Program prog = parser.Parse ();
