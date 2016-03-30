@@ -108,7 +108,7 @@ namespace Interpreter
             string type = TypeStack.Pop ();
             if (type != "Int" && type != "String") {
                 throw new SemanticError ("Semantic error: Only String or Int values can be printed " +
-                    "(tried to print value of type type + ", on row: " + node.Children [0].Row);
+                    "(tried to print value of type type + , on row: " + node.Children [0].Row);
             }
         }
 
