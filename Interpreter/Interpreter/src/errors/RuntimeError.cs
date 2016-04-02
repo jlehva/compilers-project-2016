@@ -8,8 +8,8 @@ namespace Interpreter
         {
         }
 
-        new public string toString() {
-            return Message;
+        public override string Print() {
+            return "Runtime Error: " + Message;
         }
     }
 }

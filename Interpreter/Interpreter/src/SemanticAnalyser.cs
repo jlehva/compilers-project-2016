@@ -57,7 +57,7 @@ namespace Interpreter
                 VisitChildren (node.Children [0]);
                 string type = TypeStack.Pop ();
                 if (type != "Bool") {
-                    throw new SemanticError ("Semantic error: Assert must be applied to expression that " +
+                    throw new SemanticError ("Assert must be applied to expression that " +
                         "evaluates to Bool, evaluated to: " + type, node.Children [0].Row, node.Children [0].Column);
                 }
             } catch (SemanticError error) {
@@ -72,7 +72,7 @@ namespace Interpreter
                 string name = node.Children [0].Name;
 
                 if (!SymbolTable.ContainsKey (name)) {
-                    throw new SemanticError ("Semantic error: Variable " + name +
+                    throw new SemanticError ("Variable " + name +
                     " needs to be declared before use", node.Children [0].Row,
                         node.Children [0].Column);
                 }
@@ -82,7 +82,7 @@ namespace Interpreter
                 string type = TypeStack.Pop ();
 
                 if (type != SymbolTable [name].Type) {
-                    throw new SemanticError ("Semantic error: Variable " + name + " of type " + SymbolTable [name].Type +
+                    throw new SemanticError ("Variable " + name + " of type " + SymbolTable [name].Type +
                     " can not be assigned a value of type " + type, node.Children [0].Row, node.Children [0].Column);
                 }
             } catch (SemanticError error) {
@@ -100,11 +100,11 @@ namespace Interpreter
                 Node statements = node.Children [3];
 
                 if (!SymbolTable.ContainsKey (identifierNameStmt.Name)) {
-                    throw new SemanticError ("Semantic error: Variable " + identifierNameStmt.Name +
+                    throw new SemanticError ("Variable " + identifierNameStmt.Name +
                     " needs to be declared before use", identifierNameStmt.Row,
                     identifierNameStmt.Column);
                 } else if (SymbolTable [identifierNameStmt.Name].Type != "Int") {
-                    throw new SemanticError ("Semantic error: Variable " + identifierNameStmt.Name +
+                    throw new SemanticError ("Variable " + identifierNameStmt.Name +
                     " must be of type int to be used in For-statement", identifierNameStmt.Row,
                     identifierNameStmt.Column);
                 }
@@ -112,14 +112,14 @@ namespace Interpreter
                 VisitChildren (startExpr);
                 string type = TypeStack.Pop ();
                 if (type != "Int") {
-                    throw new SemanticError ("Semantic error: For-range start needs to be int value, not " +
+                    throw new SemanticError ("For-range start needs to be int value, not " +
                     type, startExpr.Row, startExpr.Column);
                 }
 
                 VisitChildren (endExpr);
                 type = TypeStack.Pop ();
                 if (type != "Int") {
-                    throw new SemanticError ("Semantic error: For-range end needs to be int value, not " +
+                    throw new SemanticError ("For-range end needs to be int value, not " +
                     type, endExpr.Row, endExpr.Column);
                 }
 
@@ -137,7 +137,7 @@ namespace Interpreter
                 VisitChildren (node);
                 string type = TypeStack.Pop ();
                 if (type != "Int" && type != "String") {
-                    throw new SemanticError ("Semantic error: Only String or Int values can be printed " +
+                    throw new SemanticError ("Only String or Int values can be printed " +
                     "(tried to print value of type: " + type + ")", node.Children [0].Row, 
                         node.Children [0].Column);
                 }
@@ -151,7 +151,7 @@ namespace Interpreter
         {
             try {
                 if (!SymbolTable.ContainsKey (node.Children [0].Name)) {
-                    throw new SemanticError ("Semantic error: Variable " + node.Children [0].Name + " must be declared" +
+                    throw new SemanticError ("Variable " + node.Children [0].Name + " must be declared" +
                     " before it can be assigned a value", node.Children [0].Row,
                     node.Children [0].Column);
                 }
@@ -167,7 +167,7 @@ namespace Interpreter
                 string name = node.Children [0].Name;
 
                 if (SymbolTable.ContainsKey (name)) {
-                    throw new SemanticError ("Semantic error: Variable with name " + name + " is already defined",
+                    throw new SemanticError ("Variable with name " + name + " is already defined",
                     node.Children [0].Row, node.Children [0].Column);
                 }
 
@@ -191,7 +191,7 @@ namespace Interpreter
                     string typeFromStack = TypeStack.Pop ();
 
                     if (typeFromStack != type) {
-                        throw new SemanticError ("Semantic error: Expression value assigned for " + name +
+                        throw new SemanticError ("Expression value assigned for " + name +
                         " was not the same type of " + type, node.Children [2].Row,
                         node.Children [2].Column);
                     }
@@ -225,7 +225,7 @@ namespace Interpreter
             VisitChildren (node.Children [0]);
             string type = TypeStack.Pop ();
             if (type != "Bool") {
-                throw new SemanticError ("Semantic error: Operator " + node.Name + " can not be applied to operand of type: " +
+                throw new SemanticError ("Operator " + node.Name + " can not be applied to operand of type: " +
                     type, node.Children [0].Row, node.Children [0].Column);
             }
         }
@@ -255,8 +255,13 @@ namespace Interpreter
 
         public void Visit (IdentifierValueExpr node)
         {
-            TypeStack.Push (SymbolTable [node.Name].Type);
-            VisitChildren (node);
+            try {
+                TypeStack.Push (SymbolTable [node.Name].Type);
+                VisitChildren (node);
+            } catch (KeyNotFoundException e) {
+                throw new SemanticError ("Variable with name " + node.Name + " is not defined",
+                    node.Row, node.Column);
+            }
         }
 
         public void Visit (IntValueExpr node)
@@ -334,7 +339,7 @@ namespace Interpreter
 
         public void throwOperatorError (string type1, string type2, Node node)
         {
-            throw new SemanticError ("Semantic error: Operator " + node.Name + " can not be applied to operands of types: " +
+            throw new SemanticError ("Operator " + node.Name + " can not be applied to operands of types: " +
             type1 + " & " + type2, node.Children [0].Row, node.Children [0].Column);
         }
     }

@@ -13,8 +13,8 @@ namespace Interpreter
             Column = column;
         }
 
-        public string toString() {
-            return Message + " [row: " + Row + ", col: " + Column + "]";
+        public virtual string Print() {
+            return Message;
         }
     }
 }

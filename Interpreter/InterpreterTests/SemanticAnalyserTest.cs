@@ -245,6 +245,16 @@ namespace InterpreterTests
             semanticAnalyser.Run ();
             Assert.AreEqual (1, semanticAnalyser.Errors.Count);
         }
+
+        [Test ()]
+        public void TestNoKeyNotFoundException () {
+            string app = "print \"test\";" +
+                         "var x : int = \"lol\";" +
+                         "var y : int = x;" +
+                         "print y;";
+            SemanticAnalyser semanticAnalyser = new SemanticAnalyser (new Parser (new Scanner (app)).Parse ());
+            semanticAnalyser.Run ();
+        }
     }
 }
 

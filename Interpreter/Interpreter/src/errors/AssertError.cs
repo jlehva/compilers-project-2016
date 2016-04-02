@@ -7,6 +7,10 @@ namespace Interpreter
         public AssertError (string message, int row, int column) : base (message, row, column)
         {
         }
+
+        public override string Print() {
+            return "Assert Error: " + Message;
+        }
     }
 }
 
