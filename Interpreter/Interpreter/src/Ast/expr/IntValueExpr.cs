@@ -4,7 +4,7 @@ namespace Interpreter
 {
     public class IntValueExpr : Expression
     {
-        public IntValueExpr (string name, int row) : base (name, row)
+        public IntValueExpr (string name, int row, int column) : base (name, row, column)
         {
         }
 
