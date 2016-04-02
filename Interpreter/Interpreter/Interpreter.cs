@@ -12,6 +12,9 @@ namespace Interpreter
             Parser parser = new Parser (new Scanner (charStream));
             Program program = parser.Parse ();
             SemanticAnalyser semanticAnalyser = new SemanticAnalyser (program);
+            semanticAnalyser.Run ();
+            InterpreterVisitor interpreterVisitor = new InterpreterVisitor (program);
+            interpreterVisitor.Run ();
         }
     }
 }
