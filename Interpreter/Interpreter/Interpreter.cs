@@ -11,7 +11,7 @@ namespace Interpreter
             StreamReader charStream = File.OpenText (filePath);
             Parser parser = new Parser (new Scanner (charStream));
             Program program = parser.Parse ();
-            SemanticAnalyser semanticAnalyser = new SemanticAnalyser ();
+            SemanticAnalyser semanticAnalyser = new SemanticAnalyser (program);
         }
     }
 }

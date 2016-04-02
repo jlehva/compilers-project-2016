@@ -6,7 +6,6 @@ namespace Interpreter
     {
         public LexicalError (string message) : base (message)
         {
-            
         }
     }
 }

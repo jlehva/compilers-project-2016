@@ -38,6 +38,7 @@
     <Compile Include="ScannerTestAppExamples.cs" />
     <Compile Include="ParserTest.cs" />
     <Compile Include="SemanticAnalyserTest.cs" />
+    <Compile Include="InterpreterVisitorTest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

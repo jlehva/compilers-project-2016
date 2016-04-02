@@ -68,6 +68,10 @@
     <Compile Include="src\NodeVisitor.cs" />
     <Compile Include="src\Symbol.cs" />
     <Compile Include="src\SemanticAnalyser.cs" />
+    <Compile Include="src\InterpreterVisitor.cs" />
+    <Compile Include="src\errors\AssertError.cs" />
+    <Compile Include="src\errors\RuntimeError.cs" />
+    <Compile Include="src\StackValue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

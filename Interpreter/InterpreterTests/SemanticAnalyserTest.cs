@@ -14,11 +14,10 @@ namespace InterpreterTests
             string app = "var X : int := 4 + (true * 2);\n" +
                 "print X;";
             Parser parser = new Parser (new Scanner (app));
-            Program prog = parser.Parse ();
-            SemanticAnalyser semanticAnalyser = new SemanticAnalyser ();
+            SemanticAnalyser semanticAnalyser = new SemanticAnalyser (parser.Parse ());
 
             try {
-                semanticAnalyser.Run (prog);
+                semanticAnalyser.Run ();
                 Assert.Fail();
             } catch (SemanticError error) {
                 // this is what we want
@@ -34,11 +33,10 @@ namespace InterpreterTests
             string app = "var X : int := 4 + (2 * 2);\n" +
                 "var X : int := 4;";
             Parser parser = new Parser (new Scanner (app));
-            Program prog = parser.Parse ();
-            SemanticAnalyser semanticAnalyser = new SemanticAnalyser ();
+            SemanticAnalyser semanticAnalyser = new SemanticAnalyser (parser.Parse ());
 
             try {
-                semanticAnalyser.Run (prog);
+                semanticAnalyser.Run ();
                 Assert.Fail();
             } catch (SemanticError error) {
                 // this is what we want
@@ -54,11 +52,10 @@ namespace InterpreterTests
             string app = "var X : string := 4 + (2 * 2);\n" +
                 "print X;";
             Parser parser = new Parser (new Scanner (app));
-            Program prog = parser.Parse ();
-            SemanticAnalyser semanticAnalyser = new SemanticAnalyser ();
+            SemanticAnalyser semanticAnalyser = new SemanticAnalyser (parser.Parse ());
 
             try {
-                semanticAnalyser.Run (prog);
+                semanticAnalyser.Run ();
                 Assert.Fail();
             } catch (SemanticError error) {
                 // this is what we want
@@ -74,11 +71,10 @@ namespace InterpreterTests
             string app = "var X : int := 4;\n" +
                 "X := \"ERROR\";";
             Parser parser = new Parser (new Scanner (app));
-            Program prog = parser.Parse ();
-            SemanticAnalyser semanticAnalyser = new SemanticAnalyser ();
+            SemanticAnalyser semanticAnalyser = new SemanticAnalyser (parser.Parse ());
 
             try {
-                semanticAnalyser.Run (prog);
+                semanticAnalyser.Run ();
                 Assert.Fail();
             } catch (SemanticError error) {
                 // this is what we want
@@ -93,11 +89,10 @@ namespace InterpreterTests
             // if relational expression, then both of the operands must be integers
             string app = "print \"error\" < 5;";
             Parser parser = new Parser (new Scanner (app));
-            Program prog = parser.Parse ();
-            SemanticAnalyser semanticAnalyser = new SemanticAnalyser ();
+            SemanticAnalyser semanticAnalyser = new SemanticAnalyser (parser.Parse ());
 
             try {
-                semanticAnalyser.Run (prog);
+                semanticAnalyser.Run ();
                 Assert.Fail();
             } catch (SemanticError error) {
                 // this is what we want
@@ -112,9 +107,8 @@ namespace InterpreterTests
             string app = 
                 "print \"Give a number\";";
             Parser parser = new Parser (new Scanner (app));
-            Program prog = parser.Parse ();
-            SemanticAnalyser semanticAnalyser = new SemanticAnalyser ();
-            semanticAnalyser.Run (prog);
+            SemanticAnalyser semanticAnalyser = new SemanticAnalyser (parser.Parse ());
+            semanticAnalyser.Run ();
             Assert.AreEqual (0, semanticAnalyser.TypeStack.Count);
         }
 
@@ -123,9 +117,8 @@ namespace InterpreterTests
             string app = 
                 "var X : int := 1 * 2 + 3 * 4 + 5 * 6;";
             Parser parser = new Parser (new Scanner (app));
-            Program prog = parser.Parse ();
-            SemanticAnalyser semanticAnalyser = new SemanticAnalyser ();
-            semanticAnalyser.Run (prog);
+            SemanticAnalyser semanticAnalyser = new SemanticAnalyser (parser.Parse ());
+            semanticAnalyser.Run ();
             Assert.AreEqual (0, semanticAnalyser.TypeStack.Count);
         }
 
@@ -135,9 +128,8 @@ namespace InterpreterTests
                 "var n : int;\n" +
                 "read n;";
             Parser parser = new Parser (new Scanner (app));
-            Program prog = parser.Parse ();
-            SemanticAnalyser semanticAnalyser = new SemanticAnalyser ();
-            semanticAnalyser.Run (prog);
+            SemanticAnalyser semanticAnalyser = new SemanticAnalyser (parser.Parse ());
+            semanticAnalyser.Run ();
             Assert.AreEqual (0, semanticAnalyser.TypeStack.Count);
         }
 
@@ -147,9 +139,8 @@ namespace InterpreterTests
                 "var v : int := 1;\n" +
                 "var i : int;\n";
             Parser parser = new Parser (new Scanner (app));
-            Program prog = parser.Parse ();
-            SemanticAnalyser semanticAnalyser = new SemanticAnalyser ();
-            semanticAnalyser.Run (prog);
+            SemanticAnalyser semanticAnalyser = new SemanticAnalyser (parser.Parse ());
+            semanticAnalyser.Run ();
             Assert.AreEqual (0, semanticAnalyser.TypeStack.Count);
         }
 
@@ -161,9 +152,8 @@ namespace InterpreterTests
                 "print \"The result is: \";\n" +
                 "print v;";
             Parser parser = new Parser (new Scanner (app));
-            Program prog = parser.Parse ();
-            SemanticAnalyser semanticAnalyser = new SemanticAnalyser ();
-            semanticAnalyser.Run (prog);
+            SemanticAnalyser semanticAnalyser = new SemanticAnalyser (parser.Parse ());
+            semanticAnalyser.Run ();
             Assert.AreEqual (0, semanticAnalyser.TypeStack.Count);
         }
 
@@ -177,9 +167,8 @@ namespace InterpreterTests
                 "v := v * i;\n" +
                 "end for;\n";
             Parser parser = new Parser (new Scanner (app));
-            Program prog = parser.Parse ();
-            SemanticAnalyser semanticAnalyser = new SemanticAnalyser ();
-            semanticAnalyser.Run (prog);
+            SemanticAnalyser semanticAnalyser = new SemanticAnalyser (parser.Parse ());
+            semanticAnalyser.Run ();
             Assert.AreEqual (0, semanticAnalyser.TypeStack.Count);
         }
 
@@ -194,11 +183,10 @@ namespace InterpreterTests
                 "v := v * i;\n" +
                 "end for;\n";
             Parser parser = new Parser (new Scanner (app));
-            Program prog = parser.Parse ();
-            SemanticAnalyser semanticAnalyser = new SemanticAnalyser ();
+            SemanticAnalyser semanticAnalyser = new SemanticAnalyser (parser.Parse ());
 
             try {
-                semanticAnalyser.Run (prog);
+                semanticAnalyser.Run ();
                 Assert.Fail();
             } catch (SemanticError error) {
                 // this is what we want
@@ -213,11 +201,10 @@ namespace InterpreterTests
             string app = 
                 "read n;";
             Parser parser = new Parser (new Scanner (app));
-            Program prog = parser.Parse ();
-            SemanticAnalyser semanticAnalyser = new SemanticAnalyser ();
+            SemanticAnalyser semanticAnalyser = new SemanticAnalyser (parser.Parse ());
 
             try {
-                semanticAnalyser.Run (prog);
+                semanticAnalyser.Run ();
                 Assert.Fail();
             } catch (SemanticError error) {
                 // this is what we want
@@ -241,9 +228,8 @@ namespace InterpreterTests
                 "print \"The result is: \";\n" +
                 "print v;";
             Parser parser = new Parser (new Scanner (app));
-            Program prog = parser.Parse ();
-            SemanticAnalyser semanticAnalyser = new SemanticAnalyser ();
-            semanticAnalyser.Run (prog);
+            SemanticAnalyser semanticAnalyser = new SemanticAnalyser (parser.Parse ());
+            semanticAnalyser.Run ();
             Assert.AreEqual (0, semanticAnalyser.TypeStack.Count);
         }
 
@@ -252,16 +238,15 @@ namespace InterpreterTests
             Program prog;
 
             string app = "var i : bool := true & false;";
-            SemanticAnalyser semanticAnalyser = new SemanticAnalyser ();
             prog = new Parser (new Scanner (app)).Parse ();
-            semanticAnalyser.Run (prog);
+            SemanticAnalyser semanticAnalyser = new SemanticAnalyser (prog);
+            semanticAnalyser.Run ();
 
             app = "var i : bool := true & 2;";
-            prog = new Parser (new Scanner (app)).Parse ();
-            semanticAnalyser = new SemanticAnalyser ();
+            semanticAnalyser = new SemanticAnalyser (new Parser (new Scanner (app)).Parse ());
 
             try {
-                semanticAnalyser.Run (prog);
+                semanticAnalyser.Run ();
                 Assert.Fail();
             } catch (SemanticError error) {
                 // this is what we want
@@ -276,26 +261,23 @@ namespace InterpreterTests
             Program prog;
 
             string app = "var i : bool := true = false;";
-            SemanticAnalyser semanticAnalyser = new SemanticAnalyser ();
-            prog = new Parser (new Scanner (app)).Parse ();
-            semanticAnalyser.Run (prog);
+            SemanticAnalyser semanticAnalyser = new SemanticAnalyser (new Parser (new Scanner (app)).Parse ());
+            semanticAnalyser.Run ();
 
             app = "var i : bool := \"a\" = \"b\";";
-            semanticAnalyser = new SemanticAnalyser ();
-            prog = new Parser (new Scanner (app)).Parse ();
-            semanticAnalyser.Run (prog);
+            semanticAnalyser = new SemanticAnalyser (new Parser (new Scanner (app)).Parse ());
+            semanticAnalyser.Run ();
 
             app = "var i : bool := 1 = 1;";
-            semanticAnalyser = new SemanticAnalyser ();
-            prog = new Parser (new Scanner (app)).Parse ();
-            semanticAnalyser.Run (prog);
+            semanticAnalyser = new SemanticAnalyser (new Parser (new Scanner (app)).Parse ());
+            semanticAnalyser.Run ();
 
             app = "var i : bool := \"this fails\" = true;";
             prog = new Parser (new Scanner (app)).Parse ();
-            semanticAnalyser = new SemanticAnalyser ();
+            semanticAnalyser = new SemanticAnalyser (prog);
 
             try {
-                semanticAnalyser.Run (prog);
+                semanticAnalyser.Run ();
                 Assert.Fail();
             } catch (SemanticError error) {
                 // this is what we want
@@ -310,21 +292,18 @@ namespace InterpreterTests
             Program prog;
 
             string app = "var i : bool := !true;";
-            SemanticAnalyser semanticAnalyser = new SemanticAnalyser ();
-            prog = new Parser (new Scanner (app)).Parse ();
-            semanticAnalyser.Run (prog);
+            SemanticAnalyser semanticAnalyser = new SemanticAnalyser (new Parser (new Scanner (app)).Parse ());
+            semanticAnalyser.Run ();
 
             app = "var i : bool := !(2 = 2);";
-            semanticAnalyser = new SemanticAnalyser ();
-            prog = new Parser (new Scanner (app)).Parse ();
-            semanticAnalyser.Run (prog);
+            semanticAnalyser = new SemanticAnalyser (new Parser (new Scanner (app)).Parse ());
+            semanticAnalyser.Run ();
 
             app = "var i : bool := !2;";
-            semanticAnalyser = new SemanticAnalyser ();
-            prog = new Parser (new Scanner (app)).Parse ();
+            semanticAnalyser = new SemanticAnalyser (new Parser (new Scanner (app)).Parse ());
 
             try {
-                semanticAnalyser.Run (prog);
+                semanticAnalyser.Run ();
                 Assert.Fail();
             } catch (SemanticError error) {
                 // this is what we want
