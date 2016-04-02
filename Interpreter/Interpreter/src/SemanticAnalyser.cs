@@ -6,16 +6,17 @@ namespace Interpreter
     public class SemanticAnalyser : NodeVisitor
     {
         public Dictionary<string, Symbol> SymbolTable { get; private set; }
-        public Stack<Node> OperandStack { get; private set; }
         public Stack<string> TypeStack { get; private set; }
+        private Program program;
 
-        public SemanticAnalyser ()
+        public SemanticAnalyser (Program program)
         {
             SymbolTable = new Dictionary<string, Symbol> ();
             TypeStack = new Stack<string> ();
+            this.program = program;
         }
 
-        public void Run (Program program)
+        public void Run ()
         {
             program.Accept (this);
         }
@@ -82,19 +83,22 @@ namespace Interpreter
             if (!SymbolTable.ContainsKey (identifierNameStmt.Name)) {
                 throw new SemanticError ("Semantic error: Symbol " + identifierNameStmt.Name + 
                     " needs to be declared before use, on row: " + identifierNameStmt.Row);
+            } else if (SymbolTable [identifierNameStmt.Name].Type != "Int") {
+                throw new SemanticError ("Semantic error: Symbol " + identifierNameStmt.Name + 
+                    " must be of type int to be used in For-statement, on row: " + identifierNameStmt.Row);
             }
                 
             VisitChildren (startExpr);
             string type = TypeStack.Pop ();
             if (type != "Int") {
-                throw new SemanticError ("Semantic error: For range needs to start with int value, not with " + 
+                throw new SemanticError ("Semantic error: For-range start needs to be int value, not " + 
                     type + ", on row: " + startExpr.Row);
             }
 
             VisitChildren (endExpr);
             type = TypeStack.Pop ();
             if (type != "Int") {
-                throw new SemanticError ("Semantic error: For range needs to start with int value, not with " + 
+                throw new SemanticError ("Semantic error: For-range end needs to be int value, not " + 
                     type + ", on row: " + startExpr.Row);
             }
 
@@ -141,6 +145,7 @@ namespace Interpreter
                 value = null;
             }
 
+            // node.Children [2] is the value expression
             if (node.Children.Count == 3) {
                 VisitChildren(node.Children [2]);
                 string typeFromStack = TypeStack.Pop ();
