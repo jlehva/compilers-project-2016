@@ -4,7 +4,7 @@ namespace Interpreter
 {
     public class VarDeclStmt : Statement
     {
-        public VarDeclStmt (string name, int row) : base (name, row)
+        public VarDeclStmt (string name, int row, int column) : base (name, row, column)
         {
         }
 

@@ -4,7 +4,7 @@ namespace Interpreter
 {
     public class ReadStmt : Statement
     {
-        public ReadStmt (string name, int row) : base (name, row)
+        public ReadStmt (string name, int row, int column) : base (name, row, column)
         {
         }
 

@@ -53,7 +53,7 @@ namespace Interpreter
             // The result of the expression is then found from the ValueStack
             StackValue stackValue = ValueStack.Pop ();
             if (stackValue.Value == "false") { 
-                throw new AssertError ("Assertion failed on row: " + node.Row);
+                throw new AssertError ("Assertion failed", node.Row, node.Column);
             }
         }
 
@@ -104,7 +104,7 @@ namespace Interpreter
                 try {
                     Int32.Parse (userInput);
                 } catch (Exception e) {
-                    throw new RuntimeError ("Expected input value " + userInput + " to be integer");
+                    throw new RuntimeError ("Expected input value " + userInput + " to be integer", 0, 0);
                 }
             }
 
@@ -247,7 +247,7 @@ namespace Interpreter
                     return;
                 case "/":
                     if (int2 == 0) {
-                        throw new RuntimeError ("Division by zero is not allowed");
+                        throw new RuntimeError ("Division by zero is not allowed", 0, 0);
                     }
                     ValueStack.Push (new StackValue ("Int", int1 / int2));
                     return;

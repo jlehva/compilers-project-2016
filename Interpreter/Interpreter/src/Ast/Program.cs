@@ -4,7 +4,7 @@ namespace Interpreter
 {
     public class Program : Node
     {
-        public Program (string name, int row) : base (name, row)
+        public Program (string name, int row, int column) : base (name, row, column)
         {
         }
 

@@ -2,10 +2,14 @@
 
 namespace Interpreter
 {
-    public class SemanticError : Exception
+    public class SemanticError : Error
     {
-        public SemanticError (string message) : base (message)
+        public SemanticError (string message, int row, int column) : base (message, row, column)
         {
+        }
+
+        public override string Print() {
+            return "Semantic Error: " + Message + " [row: " + Row + ", col: " + Column + "]";
         }
     }
 }

@@ -4,7 +4,7 @@ namespace Interpreter
 {
     public class StringType : Type
     {
-        public StringType (string name, int row) : base(name, row)
+        public StringType (string name, int row, int column) : base (name, row, column)
         {
         }
 
