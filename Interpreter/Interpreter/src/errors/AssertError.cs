@@ -2,9 +2,9 @@
 
 namespace Interpreter
 {
-    public class AssertError : Exception
+    public class AssertError : Error
     {
-        public AssertError (string message) : base (message)
+        public AssertError (string message, int row, int column) : base (message, row, column)
         {
         }
     }

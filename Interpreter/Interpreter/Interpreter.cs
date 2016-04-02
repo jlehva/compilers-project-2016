@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace Interpreter
 {
@@ -14,7 +16,12 @@ namespace Interpreter
             SemanticAnalyser semanticAnalyser = new SemanticAnalyser (program);
             semanticAnalyser.Run ();
             InterpreterVisitor interpreterVisitor = new InterpreterVisitor (program);
-            interpreterVisitor.Run ();
+
+            if (parser.Errors.Count == 0 && semanticAnalyser.Errors.Count == 0) {
+                interpreterVisitor.Run ();
+            } else {
+                // List<Error> errors = parser.Errors.Union (semanticAnalyser.Errors);
+            }
         }
     }
 }

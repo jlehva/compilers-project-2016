@@ -2,9 +2,9 @@
 
 namespace Interpreter
 {
-    public class LexicalError : Exception
+    public class LexicalError : Error
     {
-        public LexicalError (string message) : base (message)
+        public LexicalError (string message, int row, int column) : base (message, row, column)
         {
         }
     }

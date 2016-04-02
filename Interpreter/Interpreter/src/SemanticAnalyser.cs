@@ -11,14 +11,14 @@ namespace Interpreter
 
         private Program program;
 
-        public List<Exception> Errors { get; private set; }
+        public List<Error> Errors { get; private set; }
 
         public SemanticAnalyser (Program program)
         {
             SymbolTable = new Dictionary<string, Symbol> ();
             TypeStack = new Stack<string> ();
             this.program = program;
-            Errors = new List<Exception> ();
+            Errors = new List<Error> ();
         }
 
         public void Run ()
@@ -58,7 +58,7 @@ namespace Interpreter
                 string type = TypeStack.Pop ();
                 if (type != "Bool") {
                     throw new SemanticError ("Semantic error: Assert must be applied to expression that " +
-                    "evaluates to Bool. Expression on row " + node.Row + " evaluates to: " + type);
+                        "evaluates to Bool, evaluated to: " + type, node.Children [0].Row, node.Children [0].Column);
                 }
             } catch (SemanticError error) {
                 Errors.Add (error);
@@ -73,8 +73,8 @@ namespace Interpreter
 
                 if (!SymbolTable.ContainsKey (name)) {
                     throw new SemanticError ("Semantic error: Variable " + name +
-                    " needs to be declared before use, on row: " + node.Children [0].Row + ", col: " +
-                    node.Children [0].Row);
+                    " needs to be declared before use", node.Children [0].Row,
+                        node.Children [0].Column);
                 }
 
                 // check if the assigned expression is of the same type as the variable in symbol table
@@ -83,8 +83,7 @@ namespace Interpreter
 
                 if (type != SymbolTable [name].Type) {
                     throw new SemanticError ("Semantic error: Variable " + name + " of type " + SymbolTable [name].Type +
-                    " can not be assigned a value of type " + type + ", on row: " + node.Children [0].Row +
-                    " col: " + node.Children [0].Column);
+                    " can not be assigned a value of type " + type, node.Children [0].Row, node.Children [0].Column);
                 }
             } catch (SemanticError error) {
                 Errors.Add (error);
@@ -102,11 +101,11 @@ namespace Interpreter
 
                 if (!SymbolTable.ContainsKey (identifierNameStmt.Name)) {
                     throw new SemanticError ("Semantic error: Variable " + identifierNameStmt.Name +
-                    " needs to be declared before use, on row: " + identifierNameStmt.Row + ", col: " +
+                    " needs to be declared before use", identifierNameStmt.Row,
                     identifierNameStmt.Column);
                 } else if (SymbolTable [identifierNameStmt.Name].Type != "Int") {
                     throw new SemanticError ("Semantic error: Variable " + identifierNameStmt.Name +
-                    " must be of type int to be used in For-statement, on row: " + identifierNameStmt.Row + ", col: " +
+                    " must be of type int to be used in For-statement", identifierNameStmt.Row,
                     identifierNameStmt.Column);
                 }
                 
@@ -114,14 +113,14 @@ namespace Interpreter
                 string type = TypeStack.Pop ();
                 if (type != "Int") {
                     throw new SemanticError ("Semantic error: For-range start needs to be int value, not " +
-                    type + ", on row: " + startExpr.Row + ", col: " + startExpr.Column);
+                    type, startExpr.Row, startExpr.Column);
                 }
 
                 VisitChildren (endExpr);
                 type = TypeStack.Pop ();
                 if (type != "Int") {
                     throw new SemanticError ("Semantic error: For-range end needs to be int value, not " +
-                    type + ", on row: " + endExpr.Row + ", col: " + endExpr.Column);
+                    type, endExpr.Row, endExpr.Column);
                 }
 
                 VisitChildren (statements);
@@ -139,8 +138,8 @@ namespace Interpreter
                 string type = TypeStack.Pop ();
                 if (type != "Int" && type != "String") {
                     throw new SemanticError ("Semantic error: Only String or Int values can be printed " +
-                    "(tried to print value of type: " + type + "), on row: " + node.Children [0].Row +
-                    ", col: " + node.Children [0].Column);
+                    "(tried to print value of type: " + type + ")", node.Children [0].Row, 
+                        node.Children [0].Column);
                 }
             } catch (SemanticError error) {
                 Errors.Add (error);
@@ -153,7 +152,7 @@ namespace Interpreter
             try {
                 if (!SymbolTable.ContainsKey (node.Children [0].Name)) {
                     throw new SemanticError ("Semantic error: Variable " + node.Children [0].Name + " must be declared" +
-                    " before it can be assigned a value , on row: " + node.Children [0].Row + ", col " +
+                    " before it can be assigned a value", node.Children [0].Row,
                     node.Children [0].Column);
                 }
             } catch (SemanticError error) {
@@ -168,8 +167,8 @@ namespace Interpreter
                 string name = node.Children [0].Name;
 
                 if (SymbolTable.ContainsKey (name)) {
-                    throw new SemanticError ("Semantic error: Variable with name " + name + " is already defined, on row: " +
-                    node.Children [0].Row + ", col: " + node.Children [0].Column);
+                    throw new SemanticError ("Semantic error: Variable with name " + name + " is already defined",
+                    node.Children [0].Row, node.Children [0].Column);
                 }
 
                 string type = node.Children [1].Name;
@@ -193,8 +192,8 @@ namespace Interpreter
 
                     if (typeFromStack != type) {
                         throw new SemanticError ("Semantic error: Expression value assigned for " + name +
-                        " was not the same type of " + type + ", on row: " + node.Children [2].Row +
-                        ", col: " + node.Children [2].Column);
+                        " was not the same type of " + type, node.Children [2].Row,
+                        node.Children [2].Column);
                     }
                 }
 
@@ -227,7 +226,7 @@ namespace Interpreter
             string type = TypeStack.Pop ();
             if (type != "Bool") {
                 throw new SemanticError ("Semantic error: Operator " + node.Name + " can not be applied to operand of type: " +
-                type + ", on row: " + node.Row + ", col: " + node.Column);
+                    type, node.Children [0].Row, node.Children [0].Column);
             }
         }
 
@@ -336,7 +335,7 @@ namespace Interpreter
         public void throwOperatorError (string type1, string type2, Node node)
         {
             throw new SemanticError ("Semantic error: Operator " + node.Name + " can not be applied to operands of types: " +
-            type1 + " & " + type2 + ", on row " + node.Children [0].Row + ", col: " + node.Children [0].Column);
+            type1 + " & " + type2, node.Children [0].Row, node.Children [0].Column);
         }
     }
 }

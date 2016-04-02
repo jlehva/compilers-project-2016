@@ -28,7 +28,7 @@ namespace InterpreterTests
                 "print X;";
             Parser parser = new Parser (new Scanner (app));
             Program prog = parser.Parse ();
-            Assert.AreEqual (0, parser.GetErrors ().Count);
+            Assert.AreEqual (0, parser.Errors.Count);
         }
 
         [Test ()]
@@ -45,7 +45,7 @@ namespace InterpreterTests
                 "assert (x = nTimes);\n";
             Parser parser = new Parser (new Scanner (app));
             parser.Parse ();
-            Assert.AreEqual (0, parser.GetErrors ().Count);
+            Assert.AreEqual (0, parser.Errors.Count);
         }
 
         [Test ()]
@@ -63,7 +63,7 @@ namespace InterpreterTests
                 "print v;";
             Parser parser = new Parser (new Scanner (app));
             parser.Parse ();
-            Assert.AreEqual (0, parser.GetErrors ().Count);
+            Assert.AreEqual (0, parser.Errors.Count);
         }
 
         [Test ()]
@@ -81,8 +81,8 @@ namespace InterpreterTests
                 "\"foo=";
             Parser parser = new Parser (new Scanner (app));
             parser.Parse ();
-            Assert.AreEqual (2, parser.GetErrors ().Count);
-            foreach (Exception error in parser.GetErrors ()) {
+            Assert.AreEqual (2, parser.Errors.Count);
+            foreach (Exception error in parser.Errors) {
                 Assert.AreEqual (typeof(LexicalError), error.GetType ());
             }
         }
@@ -102,8 +102,8 @@ namespace InterpreterTests
                 "print v;";
             Parser parser = new Parser (new Scanner (app));
             parser.Parse ();
-            Assert.AreEqual (2, parser.GetErrors ().Count);
-            foreach (Exception error in parser.GetErrors ()) {
+            Assert.AreEqual (2, parser.Errors.Count);
+            foreach (Exception error in parser.Errors) {
                 Assert.AreEqual (typeof(SyntaxError), error.GetType ());
             }
         }
