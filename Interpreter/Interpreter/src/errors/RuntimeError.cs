@@ -7,6 +7,10 @@ namespace Interpreter
         public RuntimeError (string message, int row, int column) : base (message, row, column)
         {
         }
+
+        new public string toString() {
+            return Message;
+        }
     }
 }
 

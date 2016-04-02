@@ -12,6 +12,10 @@ namespace Interpreter
             Row = row;
             Column = column;
         }
+
+        public string toString() {
+            return Message + " [row: " + Row + ", col: " + Column + "]";
+        }
     }
 }
 

@@ -20,7 +20,12 @@ namespace Interpreter
             if (parser.Errors.Count == 0 && semanticAnalyser.Errors.Count == 0) {
                 interpreterVisitor.Run ();
             } else {
-                // List<Error> errors = parser.Errors.Union (semanticAnalyser.Errors);
+                List<Error> errors = parser.Errors;
+                errors.AddRange (semanticAnalyser.Errors);
+                errors = errors.OrderBy (e => e.Row).ThenBy (e => e.Column).ToList ();
+                foreach (Error e in errors) {
+                    System.Console.WriteLine (e.ToString ());
+                }
             }
         }
     }
