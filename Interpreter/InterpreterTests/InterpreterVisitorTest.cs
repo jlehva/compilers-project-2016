@@ -30,13 +30,24 @@ namespace InterpreterTests
                 "    print x;\n" +
                 "    print \" : Hello, World!\\n\";\n" +
                 "end for;\n" +
+                "print x;\n" +
+                "print nTimes;\n" +
                 "assert (x = nTimes);\n";
             Parser parser = new Parser (new Scanner (app));
             Program prog = parser.Parse ();
             SemanticAnalyser semanticAnalyser = new SemanticAnalyser (prog);
             semanticAnalyser.Run ();
             InterpreterVisitor interpreter = new InterpreterVisitor (prog);
-            interpreter.Run ();
+
+            try {
+                interpreter.Run ();
+                Assert.Fail();
+            } catch (AssertError error) {
+                // this is what we want
+                Assert.Pass (error.Message);
+            } catch (Exception e) {
+                Assert.Fail ("Wrong exception: " + e.Message);
+            }
         }
 
         [Test ()]
