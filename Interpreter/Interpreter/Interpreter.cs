@@ -30,7 +30,6 @@ namespace Interpreter
             Program program = parser.Parse ();
             SemanticAnalyser semanticAnalyser = new SemanticAnalyser (program);
             semanticAnalyser.Run ();
-            program.Print ();
             InterpreterVisitor interpreterVisitor = new InterpreterVisitor (program);
 
             if (parser.Errors.Count == 0 && semanticAnalyser.Errors.Count == 0) {
