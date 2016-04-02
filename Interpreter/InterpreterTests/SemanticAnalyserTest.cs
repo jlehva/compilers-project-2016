@@ -15,16 +15,8 @@ namespace InterpreterTests
                 "print X;";
             Parser parser = new Parser (new Scanner (app));
             SemanticAnalyser semanticAnalyser = new SemanticAnalyser (parser.Parse ());
-
-            try {
-                semanticAnalyser.Run ();
-                Assert.Fail();
-            } catch (SemanticError error) {
-                // this is what we want
-                Assert.Pass (error.Message);
-            } catch (Exception e) {
-                Assert.Fail ("Wrong exception: " + e.Message);
-            }
+            semanticAnalyser.Run ();
+            Assert.AreEqual (1, semanticAnalyser.Errors.Count);
         }
 
         [Test ()]
@@ -34,16 +26,8 @@ namespace InterpreterTests
                 "var X : int := 4;";
             Parser parser = new Parser (new Scanner (app));
             SemanticAnalyser semanticAnalyser = new SemanticAnalyser (parser.Parse ());
-
-            try {
-                semanticAnalyser.Run ();
-                Assert.Fail();
-            } catch (SemanticError error) {
-                // this is what we want
-                Assert.Pass (error.Message);
-            } catch (Exception e) {
-                Assert.Fail ("Wrong exception: " + e.Message);
-            }
+            semanticAnalyser.Run ();
+            Assert.AreEqual (1, semanticAnalyser.Errors.Count);
         }
 
         [Test ()]
@@ -53,16 +37,8 @@ namespace InterpreterTests
                 "print X;";
             Parser parser = new Parser (new Scanner (app));
             SemanticAnalyser semanticAnalyser = new SemanticAnalyser (parser.Parse ());
-
-            try {
-                semanticAnalyser.Run ();
-                Assert.Fail();
-            } catch (SemanticError error) {
-                // this is what we want
-                Assert.Pass (error.Message);
-            } catch (Exception e) {
-                Assert.Fail ("Wrong exception: " + e.Message);
-            }
+            semanticAnalyser.Run ();
+            Assert.AreEqual (1, semanticAnalyser.Errors.Count);
         }
 
         [Test ()]
@@ -72,16 +48,8 @@ namespace InterpreterTests
                 "X := \"ERROR\";";
             Parser parser = new Parser (new Scanner (app));
             SemanticAnalyser semanticAnalyser = new SemanticAnalyser (parser.Parse ());
-
-            try {
-                semanticAnalyser.Run ();
-                Assert.Fail();
-            } catch (SemanticError error) {
-                // this is what we want
-                Assert.Pass (error.Message);
-            } catch (Exception e) {
-                Assert.Fail ("Wrong exception: " + e.Message);
-            }
+            semanticAnalyser.Run ();
+            Assert.AreEqual (1, semanticAnalyser.Errors.Count);
         }
 
         [Test ()]
@@ -90,16 +58,8 @@ namespace InterpreterTests
             string app = "print \"error\" < 5;";
             Parser parser = new Parser (new Scanner (app));
             SemanticAnalyser semanticAnalyser = new SemanticAnalyser (parser.Parse ());
-
-            try {
                 semanticAnalyser.Run ();
-                Assert.Fail();
-            } catch (SemanticError error) {
-                // this is what we want
-                Assert.Pass (error.Message);
-            } catch (Exception e) {
-                Assert.Fail ("Wrong exception: " + e.Message);
-            }
+            Assert.AreEqual (1, semanticAnalyser.Errors.Count);
         }
 
         [Test ()]
@@ -110,6 +70,7 @@ namespace InterpreterTests
             SemanticAnalyser semanticAnalyser = new SemanticAnalyser (parser.Parse ());
             semanticAnalyser.Run ();
             Assert.AreEqual (0, semanticAnalyser.TypeStack.Count);
+            Assert.AreEqual (0, semanticAnalyser.Errors.Count);
         }
 
         [Test ()]
@@ -120,6 +81,7 @@ namespace InterpreterTests
             SemanticAnalyser semanticAnalyser = new SemanticAnalyser (parser.Parse ());
             semanticAnalyser.Run ();
             Assert.AreEqual (0, semanticAnalyser.TypeStack.Count);
+            Assert.AreEqual (0, semanticAnalyser.Errors.Count);
         }
 
         [Test ()]
@@ -131,6 +93,7 @@ namespace InterpreterTests
             SemanticAnalyser semanticAnalyser = new SemanticAnalyser (parser.Parse ());
             semanticAnalyser.Run ();
             Assert.AreEqual (0, semanticAnalyser.TypeStack.Count);
+            Assert.AreEqual (0, semanticAnalyser.Errors.Count);
         }
 
         [Test ()]
@@ -185,15 +148,8 @@ namespace InterpreterTests
             Parser parser = new Parser (new Scanner (app));
             SemanticAnalyser semanticAnalyser = new SemanticAnalyser (parser.Parse ());
 
-            try {
                 semanticAnalyser.Run ();
-                Assert.Fail();
-            } catch (SemanticError error) {
-                // this is what we want
-                Assert.Pass (error.Message);
-            } catch (Exception e) {
-                Assert.Fail ("Wrong exception: " + e.Message);
-            }
+            Assert.AreEqual (1, semanticAnalyser.Errors.Count);
         }
 
         [Test ()]
@@ -202,16 +158,8 @@ namespace InterpreterTests
                 "read n;";
             Parser parser = new Parser (new Scanner (app));
             SemanticAnalyser semanticAnalyser = new SemanticAnalyser (parser.Parse ());
-
-            try {
-                semanticAnalyser.Run ();
-                Assert.Fail();
-            } catch (SemanticError error) {
-                // this is what we want
-                Assert.Pass (error.Message);
-            } catch (Exception e) {
-                Assert.Fail ("Wrong exception: " + e.Message);
-            }
+            semanticAnalyser.Run ();
+            Assert.AreEqual (1, semanticAnalyser.Errors.Count);
         }
 
         [Test ()]
@@ -241,19 +189,14 @@ namespace InterpreterTests
             prog = new Parser (new Scanner (app)).Parse ();
             SemanticAnalyser semanticAnalyser = new SemanticAnalyser (prog);
             semanticAnalyser.Run ();
+            Assert.AreEqual (0, semanticAnalyser.TypeStack.Count);
 
             app = "var i : bool := true & 2;";
             semanticAnalyser = new SemanticAnalyser (new Parser (new Scanner (app)).Parse ());
 
-            try {
-                semanticAnalyser.Run ();
-                Assert.Fail();
-            } catch (SemanticError error) {
-                // this is what we want
-                Assert.Pass (error.Message);
-            } catch (Exception e) {
-                Assert.Fail ("Wrong exception: " + e.Message);
-            }
+            semanticAnalyser.Run ();
+            Assert.AreEqual (0, semanticAnalyser.TypeStack.Count);
+            Assert.AreEqual (1, semanticAnalyser.Errors.Count);
         }
 
         [Test ()]
@@ -263,28 +206,24 @@ namespace InterpreterTests
             string app = "var i : bool := true = false;";
             SemanticAnalyser semanticAnalyser = new SemanticAnalyser (new Parser (new Scanner (app)).Parse ());
             semanticAnalyser.Run ();
+            Assert.AreEqual (0, semanticAnalyser.Errors.Count);
 
             app = "var i : bool := \"a\" = \"b\";";
             semanticAnalyser = new SemanticAnalyser (new Parser (new Scanner (app)).Parse ());
             semanticAnalyser.Run ();
+            Assert.AreEqual (0, semanticAnalyser.Errors.Count);
 
             app = "var i : bool := 1 = 1;";
             semanticAnalyser = new SemanticAnalyser (new Parser (new Scanner (app)).Parse ());
             semanticAnalyser.Run ();
+            Assert.AreEqual (0, semanticAnalyser.Errors.Count);
 
             app = "var i : bool := \"this fails\" = true;";
             prog = new Parser (new Scanner (app)).Parse ();
             semanticAnalyser = new SemanticAnalyser (prog);
+            semanticAnalyser.Run ();
 
-            try {
-                semanticAnalyser.Run ();
-                Assert.Fail();
-            } catch (SemanticError error) {
-                // this is what we want
-                Assert.Pass (error.Message);
-            } catch (Exception e) {
-                Assert.Fail ("Wrong exception: " + e.Message);
-            }
+            Assert.AreEqual (1, semanticAnalyser.Errors.Count);
         }
 
         [Test ()]
@@ -294,23 +233,17 @@ namespace InterpreterTests
             string app = "var i : bool := !true;";
             SemanticAnalyser semanticAnalyser = new SemanticAnalyser (new Parser (new Scanner (app)).Parse ());
             semanticAnalyser.Run ();
+            Assert.AreEqual (0, semanticAnalyser.Errors.Count);
 
             app = "var i : bool := !(2 = 2);";
             semanticAnalyser = new SemanticAnalyser (new Parser (new Scanner (app)).Parse ());
             semanticAnalyser.Run ();
+            Assert.AreEqual (0, semanticAnalyser.Errors.Count);
 
             app = "var i : bool := !2;";
             semanticAnalyser = new SemanticAnalyser (new Parser (new Scanner (app)).Parse ());
-
-            try {
-                semanticAnalyser.Run ();
-                Assert.Fail();
-            } catch (SemanticError error) {
-                // this is what we want
-                Assert.Pass (error.Message);
-            } catch (Exception e) {
-                Assert.Fail ("Wrong exception: " + e.Message);
-            }
+            semanticAnalyser.Run ();
+            Assert.AreEqual (1, semanticAnalyser.Errors.Count);
         }
     }
 }
