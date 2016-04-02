@@ -59,7 +59,7 @@ namespace Interpreter
             string name = node.Children [0].Name;
 
             if (!SymbolTable.ContainsKey (name)) {
-                throw new SemanticError ("Semantic error: Symbol with name " + name + 
+                throw new SemanticError ("Semantic error: Variable " + name + 
                     " needs to be declared before use, on row: " + node.Children [0].Row);
             }
 
@@ -68,7 +68,7 @@ namespace Interpreter
             string type = TypeStack.Pop ();
 
             if (type != SymbolTable [name].Type) {
-                throw new SemanticError ("Semantic error: Symbol " + name + " of type " + SymbolTable [name].Type + 
+                throw new SemanticError ("Semantic error: Variable " + name + " of type " + SymbolTable [name].Type + 
                     " can not be assigned a value of type " + type + ", on row: " + node.Children [0].Row);
             }
         }
@@ -81,10 +81,10 @@ namespace Interpreter
             Node statements = node.Children [3];
 
             if (!SymbolTable.ContainsKey (identifierNameStmt.Name)) {
-                throw new SemanticError ("Semantic error: Symbol " + identifierNameStmt.Name + 
+                throw new SemanticError ("Semantic error: Variable " + identifierNameStmt.Name + 
                     " needs to be declared before use, on row: " + identifierNameStmt.Row);
             } else if (SymbolTable [identifierNameStmt.Name].Type != "Int") {
-                throw new SemanticError ("Semantic error: Symbol " + identifierNameStmt.Name + 
+                throw new SemanticError ("Semantic error: Variable " + identifierNameStmt.Name + 
                     " must be of type int to be used in For-statement, on row: " + identifierNameStmt.Row);
             }
                 
@@ -119,8 +119,8 @@ namespace Interpreter
         public void Visit (ReadStmt node)
         {
             if (!SymbolTable.ContainsKey (node.Children [0].Name)) {
-                throw new SemanticError ("Semantic error: Symbol " + node.Children [0].Name + " must be declared" +
-                    " before value can be assigned for it , on row: " + node.Children [0].Row);
+                throw new SemanticError ("Semantic error: Variable " + node.Children [0].Name + " must be declared" +
+                    " before it can be assigned a value , on row: " + node.Children [0].Row);
             }
         }
 
@@ -129,7 +129,7 @@ namespace Interpreter
             string name = node.Children [0].Name;
 
             if (SymbolTable.ContainsKey (name)) {
-                throw new SemanticError ("Semantic error: Symbol with name " + name + " already exists, on row: " +
+                throw new SemanticError ("Semantic error: Variable with name " + name + " is already defined, on row: " +
                     node.Children [0].Row);
             }
 
