@@ -228,8 +228,6 @@ namespace InterpreterTests
 
         [Test ()]
         public void TestNotExpressions () {
-            Program prog;
-
             string app = "var i : bool := !true;";
             SemanticAnalyser semanticAnalyser = new SemanticAnalyser (new Parser (new Scanner (app)).Parse ());
             semanticAnalyser.Run ();
