@@ -136,7 +136,13 @@ namespace Interpreter
                         return new Token (_currentRow, _currentTokenColumn, lexeme, Token.Types.ERROR);
                     } 
                     currentChar = readNextChar ();
-                    lexeme += "\\" + (char)currentChar;
+                    if (currentChar == 'n') {
+                        lexeme += '\n';
+                    } else if (currentChar == 't') {
+                        lexeme += '\t';
+                    } else {
+                        lexeme += "\\" + currentChar;
+                    }
                     continue;
                 } else {
                     currentChar = readNextChar ();
