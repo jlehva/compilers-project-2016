@@ -83,7 +83,7 @@ namespace Interpreter
             }
 
             if (isStringLiteral (currentChar)) {
-                return createStringLiteralToken (currentChar);
+                return createStringLiteralToken ();
             }
 
             if (isLetter (currentChar)) {
@@ -118,11 +118,14 @@ namespace Interpreter
             return currentChar;
         }
 
-        private Token createStringLiteralToken (int currentChar)
+        private Token createStringLiteralToken ()
         {
             string lexeme = "";
+            int currentChar;
 
             while (true) {
+                currentChar = readNextChar ();
+
                 if (isEndOfSource (currentChar)) {
                     return new Token (_currentRow, _currentTokenColumn, lexeme, Token.Types.ERROR);
                 } 
@@ -136,16 +139,14 @@ namespace Interpreter
                         return new Token (_currentRow, _currentTokenColumn, lexeme, Token.Types.ERROR);
                     } 
                     currentChar = readNextChar ();
-                    if (currentChar == 'n') {
+                    if ((char)currentChar == 'n') {
                         lexeme += '\n';
-                    } else if (currentChar == 't') {
+                    } else if ((char)currentChar == 't') {
                         lexeme += '\t';
                     } else {
-                        lexeme += "\\" + currentChar;
+                        lexeme += "\\" + (char)currentChar;
                     }
                     continue;
-                } else {
-                    currentChar = readNextChar ();
                 }
 
                 if ((char)currentChar == '"') {

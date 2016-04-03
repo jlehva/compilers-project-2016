@@ -434,6 +434,11 @@ namespace InterpreterTests
             Assert.AreEqual (Token.Types.StringLiteral, token.Type);
             Assert.AreEqual (1, token.Row);
             Assert.AreEqual (6, token.Column);
+
+            input = "\"foo\\bar\"";
+            scanner = new Scanner (input);
+            token = scanner.GetNextToken ();
+            Assert.AreEqual ("foo\\bar", token.Lexeme);
         }
 
         [Test ()]
