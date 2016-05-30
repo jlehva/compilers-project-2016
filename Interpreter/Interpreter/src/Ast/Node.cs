@@ -29,21 +29,6 @@ namespace Interpreter
         }
 
         public abstract void Accept (NodeVisitor visitor);
-
-        // http://stackoverflow.com/questions/4965335/how-to-print-binary-tree-diagram/8948691#8948691
-        public void Print() {
-            Print("", true);
-        }
-
-        private void Print(String prefix, bool isTail) {
-            System.Console.WriteLine(prefix + (isTail ? "└── " : "├── ") + this.Name + " (" + this.GetType () + ")");
-            for (int i = 0; i < Children.Count - 1; i++) {
-                Children[i].Print(prefix + (isTail ? "    " : "│   "), false);
-            }
-            if (Children.Count > 0) {
-                Children[Children.Count - 1].Print(prefix + (isTail ?"    " : "│   "), true);
-            }
-        }
     }
 }
 
